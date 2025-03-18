@@ -1,0 +1,18 @@
+from typing import List, Literal, Optional
+
+from marshmallow import Schema,fields, validate
+
+
+class ActionSchema(Schema):
+    
+    all_widgets_are_required: Optional[bool] = fields.Bool(data_key='allWidgetsAreRequired')
+    function: Optional[str] = fields.Str()
+    parameters: List[dict] = fields.List(fields.Dict(), required=False)
+    load_indicator: Literal['SPINNER', 'NONE'] = fields.Str(
+        validate=[validate.OneOf(choices= ['SPINNER', 'NONE'])])
+    persist_values: bool = fields.Bool(data_key='persistValues', dump_default=False)
+    required_widgets: List[str] = fields.List(fields.Str())
+    interaction: Literal['INTERACTION_UNSPECIFIED', 'OPEN_DIALOG'] = fields.Str(
+        validate=[validate.OneOf(choices= ['INTERACTION_UNSPECIFIED', 'OPEN_DIALOG'])],
+        dump_default='INTERACTION_UNSPECIFIED'
+    )

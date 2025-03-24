@@ -62,5 +62,5 @@ class ActionRender():
     host_app_action: Optional[object]
     schema: Optional[str]
 
-    def __init__(self, navigation: Navigation, notification_msg: str):
+    def __init__(self, navigation: Navigation, notification_msg: str = None):
         self.action = ActionRenderAction(navigation, notification_msg)

@@ -63,7 +63,7 @@ class Common:
     host_app: HostApp
     platform: Platform
     time_zone: TimeZone
-    form_inputs: dict[str, FormInput]
+    form_inputs: Optional[dict[str, FormInput]] = None
 
 
 @dataclass

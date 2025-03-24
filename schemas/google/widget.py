@@ -1,6 +1,6 @@
 
 from typing import Optional
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, post_load
 
 from .button import ButtonListSchema
 from .column import ColumnsSchema
@@ -9,17 +9,17 @@ from .grid import GridSchema
 from .image import ImageSchema
 from .input import DateTimePickerSchema, SelectionInputSchema, TextInputSchema
 from .paragraph import ParagraphSchema
-
 from ...dtos.google.literals import HorizontalAlignment
+from ...dtos.google.widget import Widget
 
 
 class WidgetSchema(Schema):
 
-    button_list: Optional[ButtonListSchema] = fields.Nested(ButtonListSchema)
+    button_list: Optional[ButtonListSchema] = fields.Nested(ButtonListSchema, data_key='buttonList')
     columns: Optional[ColumnsSchema] = fields.Nested(ColumnsSchema)
     date_time_picker: Optional[DateTimePickerSchema] = fields.Nested(
         DateTimePickerSchema, data_key='dateTimePicker')
-    decorated_text: Optional[DecoratedTextSchema]
+    decorated_text: Optional[DecoratedTextSchema] = fields.Nested(DecoratedTextSchema, data_key='decoratedText')
     grid: Optional[GridSchema] = fields.Nested(GridSchema)
     horizontal_alignment: HorizontalAlignment = fields.Str(data_key='horizontalAlignment')
     selection_input: Optional[SelectionInputSchema] = fields.Nested(
@@ -28,3 +28,7 @@ class WidgetSchema(Schema):
     text_paragraph: Optional[ParagraphSchema] = fields.Nested(ParagraphSchema, data_key='textParagraph')
     image: Optional[ImageSchema] = fields.Nested(ImageSchema)
     divider: dict[str, object] = fields.Dict()
+
+    @post_load
+    def make_widget(self, data, **kwargs):
+        return Widget(**data)

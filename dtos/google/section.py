@@ -9,7 +9,7 @@ from .widget import Widget
 class Section:
 
     header: str
-    collapsible: bool
-    uncollapsible_widegt_count: int
-    collapse_control: CollapseControl
     widgets: List[Widget]
+    collapsible: bool = False
+    uncollapsible_widget_count: int = 1
+    collapse_control: CollapseControl = None

@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Dict, Optional
 
 from .button import ButtonList
 from .column import Columns
@@ -13,14 +13,14 @@ from .paragraph import Paragraph
 @dataclass
 class Widget:
 
-    button_list: Optional[ButtonList]
-    columns: Optional[Columns]
-    date_time_picker: Optional[DateTimePicker]
-    decorated_text: Optional[DecoratedText]
-    grid: Optional[Grid]
-    horizontal_alignment: HorizontalAlignment
-    selection_input: Optional[SelectionInput]
-    text_input: TextInput
-    text_paragraph: Optional[Paragraph]
-    image: Optional[Image]
-    divider: dict[str, object]
+    button_list: Optional[ButtonList] = None
+    columns: Optional[Columns] = None
+    date_time_picker: Optional[DateTimePicker] = None
+    decorated_text: Optional[DecoratedText] = None
+    grid: Optional[Grid] = None
+    horizontal_alignment: HorizontalAlignment = None
+    selection_input: Optional[SelectionInput] = None
+    text_input: TextInput = None
+    text_paragraph: Optional[Paragraph] = None
+    image: Optional[Image] = None
+    divider: Dict[str, object] = None

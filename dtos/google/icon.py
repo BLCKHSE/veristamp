@@ -7,15 +7,15 @@ from .literals import ImageType, KnownIcon
 @dataclass
 class MaterialIcon:
     name: str
-    weight: int
-    grade: int
+    weight: int = None
+    grade: int = None
     fill: bool = False
 
 
 @dataclass
 class Icon:
-    altText: Optional[str]
-    icon_url: Optional[str]
-    image_type: ImageType
-    known_icon: Optional[KnownIcon]
-    material_icon: Optional[MaterialIcon]
+    altText: Optional[str] = None
+    icon_url: Optional[str] = None
+    image_type: ImageType = 'SQUARE'
+    known_icon: Optional[KnownIcon] = None
+    material_icon: Optional[MaterialIcon] = None

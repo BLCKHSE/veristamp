@@ -9,8 +9,8 @@ from .overflow_menu import OverflowMenu
 @dataclass
 class OnClick:
 
-    action: Optional[Action]
-    open_link: Optional[OpenLink]
-    open_dynamic_link_action: Optional[Action]
-    card: Optional['Card'] # type: ignore
-    overflow_menu: Optional[OverflowMenu]
+    action: Optional[Action] = None
+    open_link: Optional[OpenLink] = None
+    open_dynamic_link_action: Optional[Action] = None
+    card: Optional['Card'] = None # type: ignore
+    overflow_menu: Optional[OverflowMenu] = None

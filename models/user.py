@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Enum as EnumSQL, ForeignKey, String
+from sqlalchemy import TIMESTAMP, Enum as EnumSQL, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..database import db
@@ -11,8 +11,10 @@ class User(db.Model):
 
     __tablename__ = 'users'
 
-    created_on: Mapped[datetime] = mapped_column(default=datetime.now)
+    created_on: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=datetime.now)
+    country_code: Mapped[str] = mapped_column(String(2), nullable=True)
     email: Mapped[str] = mapped_column(String(45), unique=True, nullable=False)
+    phone_number: Mapped[str] = mapped_column(String(15), unique=True, nullable=True)
     first_name: Mapped[str] = mapped_column(String(15))
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda:Generators.getAlphaNum(8))
     last_name: Mapped[str] = mapped_column(String(15))
@@ -20,7 +22,7 @@ class User(db.Model):
     role: Mapped[UserRole] = mapped_column(EnumSQL(UserRole), default=UserRole.USR)
     status: Mapped[Status] = mapped_column(EnumSQL(Status), default=Status.ACT)
     timezone: Mapped[str] = mapped_column(String)
-    updated_on: Mapped[datetime] = mapped_column(default=datetime.now)
+    updated_on: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=datetime.now)
 
     def __init__(self, data: dict[str, object]):
         self.created_on = datetime.now()

@@ -20,5 +20,5 @@ class LinkPreview:
 class OpenLink:
 
     url: str
-    open_as: Literal['FULL_SIZE', 'OVERLAY']
-    on_close: Literal['NOTHING', 'RELOAD']
+    open_as: Literal['FULL_SIZE', 'OVERLAY'] = 'OVERLAY'
+    on_close: Literal['NOTHING', 'RELOAD'] = 'RELOAD'

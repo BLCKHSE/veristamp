@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from os import getenv
 from typing import List, Literal, Optional
 
 from .color import Color
@@ -10,12 +11,11 @@ from .on_click import OnClick
 class Button:
 
     alt_text: Optional[str]
-    color: Optional[Color]
-    icon: object
     text: str
-    type: Literal['OUTLINED', 'FILLED', 'FILLED_TONAL', 'BORDERLESS']
-    icon: Optional[Icon]
     on_click: Optional[OnClick]
+    color: Optional[Color]  = Color()
+    icon: Optional[Icon] = None
+    type: Literal['OUTLINED', 'FILLED', 'FILLED_TONAL', 'BORDERLESS'] = 'OUTLINED'
     disabled: Optional[bool] = False
 
 

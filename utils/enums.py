@@ -1,6 +1,18 @@
 import enum
 
 
+class Currency(enum.Enum):
+
+    USD = "usd"
+    EUR = "eur"
+    GBP = "gbp"
+
+
+class ServiceProvider(enum.Enum):
+
+    PAYSTACK = "paystack"
+
+
 class BusinessCategory(enum.Enum):
 
     RETAIL = 'RETAIL'
@@ -17,6 +29,7 @@ class BusinessCategory(enum.Enum):
     LEGAL = 'LEGAL'
     ENTERTAINMENT = 'ENTERTAINMENT'
     GENERAL = 'GENERAL'
+
 
 class Status(enum.Enum):
     """Represent status enum object data type."""

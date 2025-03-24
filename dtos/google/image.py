@@ -10,7 +10,7 @@ class Image:
 
     alt_text: Optional[str]
     image_url: str
-    on_click: Optional[OnClick]
+    on_click: Optional[OnClick] = None
 
 
 @dataclass

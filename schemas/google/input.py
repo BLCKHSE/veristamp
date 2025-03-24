@@ -1,9 +1,10 @@
 from typing import List, Literal, Optional
 
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, post_load
 
 from .action import ActionSchema
 from ...dtos.google.literals import InputType
+from ...dtos.google.input import DateTimePicker, SelectionInput, SuggestionItem, Suggestions, TextInput, Validation
 
 
 class SelectionItemSchema(Schema):
@@ -14,20 +15,36 @@ class SelectionItemSchema(Schema):
     text: str = fields.Str()
     value: str = fields.Str()
 
+    @post_load
+    def make_selection_item(self, data, **kwargs):
+        return SelectionInput(**data)
+
 
 class SuggestionItemSchema(Schema):
 
     text: str = fields.Str()
+
+    @post_load
+    def make_suggestion_input(self, data, **kwargs):
+        return SuggestionItem(**data)
 
 
 class SuggestionsSchema(Schema):
 
     items: List[SuggestionItemSchema] = fields.Nested(SuggestionItemSchema)
 
+    @post_load
+    def make_suggestions(self, data, **kwargs):
+        return Suggestions(**data)
+
 
 class ValidationSchema(Schema):
     character_limit: int = fields.Int(data_key='characterLimit')
     input_type: InputType = fields.Str(data_key='inputType')
+
+    @post_load
+    def make_validation(self, data, **kwargs):
+        return Validation(**data)
 
 
 class DateTimePickerSchema(Schema):
@@ -38,6 +55,10 @@ class DateTimePickerSchema(Schema):
     timezone_offset_date: Optional[int] = fields.Int(data_key='timezoneOffsetDate')
     type: Literal['DATE_AND_TIME', 'DATE_ONLY', 'TIME_ONLY'] = fields.Str()
     value_ms_epoch: int = fields.Int()
+
+    @post_load
+    def make_dat_time_picker(self, data, **kwargs):
+        return DateTimePicker(**data)
 
 
 class SelectionInputSchema(Schema):
@@ -52,6 +73,10 @@ class SelectionInputSchema(Schema):
     platform_data_source: dict = fields.Dict(data_key='platformDataSource')
     type: Literal['CHECK_BOX', 'RADIO_BUTTON', 'SWITCH', 'DROPDOWN', 'MULTI_SELECT'] = fields.Str()
 
+    @post_load
+    def make_selection_input(self, data, **kwargs):
+        return SelectionInput(**data)
+
 
 class TextInputSchema(Schema):
 
@@ -65,3 +90,7 @@ class TextInputSchema(Schema):
     type: Literal['SINGLE_LINE', 'MULTIPLE_LINE'] = fields.Str()
     value: str = fields.Str()
     validation: ValidationSchema = fields.Nested(ValidationSchema)
+
+    @post_load
+    def make_text_input(self, data, **kwargs):
+        return TextInput(**data)

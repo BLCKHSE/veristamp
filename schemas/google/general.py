@@ -84,7 +84,7 @@ class CommonSchema(Schema):
     host_app: HostApp = fields.Str(data_key='hostApp')
     platform: Platform = fields.Str()
     time_zone: TimeZoneSchema = fields.Nested(TimeZoneSchema, data_key='timeZone')
-    form_inputs: dict[str, FormInputSchema] = fields.Dict(
+    form_inputs: Optional[dict[str, FormInputSchema]] = fields.Dict(
         data_key='formInputs',
         keys=fields.Str(), 
         values=fields.Nested(FormInputSchema)

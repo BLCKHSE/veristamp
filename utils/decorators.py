@@ -1,5 +1,4 @@
 import functools
-from pprint import pprint
 
 from flask import jsonify, request
 from marshmallow import ValidationError

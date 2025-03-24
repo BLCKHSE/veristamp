@@ -10,12 +10,12 @@ from .on_click import OnClick
 @dataclass
 class DecoratedText:
 
-    start_icon: Icon
-    top_label: str
     text: str
-    wrap_text:bool
-    bottom_label: Optional[str]
-    on_click: Optional[OnClick]
-    button: Optional[Button]
-    switch_control: Optional[SwitchControl]
-    endIcon: Icon
+    wrap_text:bool = False
+    bottom_label: Optional[str] = None
+    on_click: Optional[OnClick] = None
+    button: Optional[Button] = None
+    switch_control: Optional[SwitchControl] = None
+    start_icon: Icon = None
+    top_label: str = None
+    endIcon: Icon = None

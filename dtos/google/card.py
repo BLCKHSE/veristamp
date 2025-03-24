@@ -16,13 +16,13 @@ class CardAction:
 @dataclass
 class Card:
 
-    card_actions: List[CardAction]
-    fixed_footer: Footer
     name: str
     header: Header
-    peek_card_header: Header
     sections: List[Section]
+    card_actions: List[CardAction] = None
     display_style: Literal['PEEK', 'REPLACE'] = 'REPLACE'
+    fixed_footer: Footer = None
+    peek_card_header: Header = None
     section_divider_style: Literal['SOLID_DIVIDER', 'NO_DIVIDER'] = 'SOLID_DIVIDER'
 
 

@@ -4,12 +4,17 @@ from marshmallow import Schema,fields, post_load, validate
 
 from ...dtos.google.action import Action
 
+class ActionParameterSchema(Schema):
+
+    key: str = fields.Str()
+    value: str = fields.Str()
 
 class ActionSchema(Schema):
     
     all_widgets_are_required: Optional[bool] = fields.Bool(data_key='allWidgetsAreRequired')
     function: Optional[str] = fields.Str()
-    parameters: List[dict] = fields.List(fields.Dict(), required=False)
+    parameters: List[ActionParameterSchema] = fields.List(
+        fields.Nested(ActionParameterSchema), required=False)
     load_indicator: Literal['SPINNER', 'NONE'] = fields.Str(
         data_key='loadIndicator',
         validate=[validate.OneOf(choices= ['SPINNER', 'NONE'])])

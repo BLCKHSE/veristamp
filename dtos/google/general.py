@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Literal, Optional, Union
+from typing import List, Optional
 
 from .doc import Doc
 from .literals import HostApp, Platform

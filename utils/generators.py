@@ -4,6 +4,8 @@ import string
 
 class Generators:
 
+    # TODO: Implement date based getAlphaNum
+
     @staticmethod
     def getAlphaNum(size: int) -> str:
         return ''.join(

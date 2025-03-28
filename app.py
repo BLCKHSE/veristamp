@@ -2,8 +2,7 @@ from flask import Flask, jsonify, url_for
 from flask_cors import CORS
 from flask_migrate import Migrate
 
-from .controllers.home import HomeAPI
-from .controllers.user import UserAPI
+from .controllers import HomeAPI, SubscriptionAPI, UserAPI
 from .database import db
 
 def create_app():
@@ -22,11 +21,11 @@ def create_app():
 
 def register_api(app: Flask):
     url_for('static', filename='img/logo.png')
-    home: function = HomeAPI.as_view('home')
     user: function = UserAPI.as_view('users')
-    app.add_url_rule('/api/home', view_func=home)
+    app.add_url_rule('/api/home', view_func=HomeAPI.as_view('home'))
     app.add_url_rule('/api/users', view_func=user)
     app.add_url_rule('/api/users/<int:id>', view_func=user)
+    app.add_url_rule('/api/payments/<string:provider>', view_func=SubscriptionAPI.as_view('subscriptions'))
 
 app = create_app()
 

@@ -1,5 +1,6 @@
 from typing import Dict, Optional, Tuple
 
+from ..database import db
 from ..dtos.google.general import FormInput, General
 from ..models.organisation import Organisation
 from ..models.user import User
@@ -36,3 +37,6 @@ class UserService:
             user.save()
 
         return user, errors
+    
+    def get_user(self, email: str) -> Optional[User]:
+        return db.session.scalars(db.select(User).filter_by(email=email)).one_or_none()

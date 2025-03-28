@@ -1,8 +1,9 @@
 from datetime import datetime
 
 from sqlalchemy import TIMESTAMP, Enum as EnumSQL, ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from .organisation import Organisation
 from ..database import db
 from ..utils.enums import Status, UserRole
 from ..utils.generators import Generators
@@ -19,6 +20,8 @@ class User(db.Model):
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda:Generators.getAlphaNum(8))
     last_name: Mapped[str] = mapped_column(String(15))
     organisation_id: Mapped[str] = mapped_column(ForeignKey("organisations.id", ondelete='CASCADE'))
+    organisation: Mapped[Organisation] = relationship(back_populates='users')
+    paystack_customer_id: Mapped[str] = mapped_column(String, nullable=True)
     role: Mapped[UserRole] = mapped_column(EnumSQL(UserRole), default=UserRole.USR)
     status: Mapped[Status] = mapped_column(EnumSQL(Status), default=Status.ACT)
     timezone: Mapped[str] = mapped_column(String)

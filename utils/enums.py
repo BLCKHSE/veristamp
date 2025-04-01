@@ -27,6 +27,14 @@ class Currency(enum.Enum):
     KES = 'kes'
 
 
+class MenuItem(enum.Enum):
+
+    HOME = 'home'
+    DASHBOARD = 'dashboard'
+    USERS = 'users'
+    SETTINGS = 'settings'
+
+
 class PaymentMethod(enum.Enum):
 
     BANK = 'BANK'
@@ -52,6 +60,7 @@ class PaystackEvent(enum.Enum):
 class ServiceProvider(enum.Enum):
 
     PAYSTACK = 'paystack'
+
 
 class Status(enum.Enum):
     '''Represent status enum object data type.'''

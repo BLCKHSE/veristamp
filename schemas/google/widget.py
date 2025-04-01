@@ -3,6 +3,7 @@ from typing import Optional
 from marshmallow import Schema, fields, post_load
 
 from .button import ButtonListSchema
+from .chips import ChipListSchema
 from .column import ColumnsSchema
 from .decorated_text import DecoratedTextSchema
 from .grid import GridSchema
@@ -16,6 +17,7 @@ from ...dtos.google.widget import Widget
 class WidgetSchema(Schema):
 
     button_list: Optional[ButtonListSchema] = fields.Nested(ButtonListSchema, data_key='buttonList')
+    chip_list: Optional[ChipListSchema] = fields.Nested(ChipListSchema, data_key='chipList')
     columns: Optional[ColumnsSchema] = fields.Nested(ColumnsSchema)
     date_time_picker: Optional[DateTimePickerSchema] = fields.Nested(
         DateTimePickerSchema, data_key='dateTimePicker')

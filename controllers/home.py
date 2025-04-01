@@ -1,4 +1,4 @@
-from typing import Optional\
+from typing import Optional
 
 from flask import jsonify, request
 from flask.views import MethodView

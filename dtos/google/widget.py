@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import Dict, Optional
 
 from .button import ButtonList
+from .chips import ChipList
 from .column import Columns
 from .decorated_text import DecoratedText
 from .grid import Grid
@@ -14,6 +15,7 @@ from .paragraph import Paragraph
 class Widget:
 
     button_list: Optional[ButtonList] = None
+    chip_list: Optional[ChipList] = None
     columns: Optional[Columns] = None
     date_time_picker: Optional[DateTimePicker] = None
     decorated_text: Optional[DecoratedText] = None

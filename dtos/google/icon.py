@@ -14,7 +14,8 @@ class MaterialIcon:
 
 @dataclass
 class Icon:
-    altText: Optional[str] = None
+
+    alt_text: Optional[str] = None
     icon_url: Optional[str] = None
     image_type: ImageType = 'SQUARE'
     known_icon: Optional[KnownIcon] = None

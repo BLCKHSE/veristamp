@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import ENUM
 
 from ..database import db
 from ..dtos.paystack.subscriptions import SubscriptionEventDataDTO
-from ..utils.enums import Currency, PaymentMethod, ServiceProvider, Status
+from ..utils.enums import Currency, PaymentMethod, PaymentStatus, ServiceProvider, Status
 from ..utils.generators import Generators
 
 @dataclass
@@ -96,7 +96,7 @@ class SubscriptionPayment(db.Model):
         ForeignKey("organisation_subscriptions.id", ondelete='CASCADE'))
     payment_method: Mapped[PaymentMethod] = mapped_column(EnumSQL(PaymentMethod), default=PaymentMethod.CARD)
     provider_payment_id: Mapped[str] = mapped_column(String(45), nullable=False, unique=True)
-    status: Mapped[Status] = mapped_column(ENUM(Status, create_type=False), default=Status.ACT)
+    status: Mapped[PaymentStatus] = mapped_column(EnumSQL(PaymentStatus, name='payment_status'), default=PaymentStatus.COMP)
     status_description: Mapped[str] = mapped_column(String(100))
 
     def __init__(
@@ -111,7 +111,7 @@ class SubscriptionPayment(db.Model):
         self.organisation_subscription_id = subscription_id
         self.payment_method = subsciption_data.channel.upper()
         self.provider_payment_id = subsciption_data.reference
-        self.status = Status.ACT
+        self.status = PaymentStatus.COMP
         self.status_description = subsciption_data.gateway_response
 
     def save(self):

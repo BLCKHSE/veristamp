@@ -44,6 +44,15 @@ class PaymentMethod(enum.Enum):
     PAYPAL = 'PAYPAL'
     MOMO = 'MOBILE_MONEY'
 
+class PaymentStatus(enum.Enum):
+
+    COMP = 'COMPLETED'
+    INIT = 'INITIATED'
+    PEND = 'PENDING'
+    FAIL = 'FAILED'
+    FLG = 'FLAGGED'
+    CANC = 'CANCELED'
+
 
 class PaystackEvent(enum.Enum):
 

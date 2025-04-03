@@ -27,6 +27,11 @@ class Currency(enum.Enum):
     KES = 'kes'
 
 
+class MaterialIconName(enum.Enum):
+
+    ADD = 'add_2'
+    STAMP = 'approval'
+
 class MenuItem(enum.Enum):
 
     HOME = 'home'
@@ -69,6 +74,46 @@ class PaystackEvent(enum.Enum):
 class ServiceProvider(enum.Enum):
 
     PAYSTACK = 'paystack'
+    GOOGLE = 'google'
+    MICROSOFT = 'microsoft'
+
+
+class StampEvent(enum.Enum):
+
+    CREATE = 'CREATE'
+    DELETE = 'DELETE'
+    EDIT = 'EDIT'
+    APPLY = 'APPLY'
+    VERIFY = 'VERIFY'
+    REPORT = 'REPORT'
+    ASSIGN = 'ASSIGN'
+    UNASSIGN = 'UNASSIGN'
+    GENERAL = 'GENERAL'
+
+
+class StampShape(enum.Enum):
+
+    RECTANGLE = 'RECTANGLE'
+    SQUARE = 'SQUARE'
+    OVAL = 'OVAL'
+    CIRCLE = 'CICRLE'
+    HEXAGON = 'HEXAGON'
+    TRIANGLE = 'TRIANGLE'
+    STAR = 'STAR'
+
+
+class StampTemplateKey(enum.Enum):
+
+    NAME = 'NAME'
+    ADDRESS = 'PHYSICAL ADDRESS'
+    EMAIL = 'EMAIL'
+    PHONE = 'PHONE NUMBER'
+    TAGLINE = 'TAGLINE'
+    DATE = 'DATE'
+    TIMESTAMP = 'TIMESTAMP'
+    ID = 'ID NUMBER'
+    MISC = 'MISCALLANEOUS'
+    ROLE = 'ROLE'
 
 
 class Status(enum.Enum):

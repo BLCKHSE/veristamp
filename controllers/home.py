@@ -1,3 +1,4 @@
+from pprint import pprint
 from typing import Optional
 
 from flask import jsonify, request
@@ -29,6 +30,7 @@ class HomeAPI(MethodView):
 
     @authenticate
     def post(self, **kwargs):
+
         payload: General = self.request_schema.load(request.get_json())
         email: str = payload.authorization_event_object.user_email
         user: Optional[User] = db.session.scalar(db.select(User).filter_by(email=email))

@@ -11,7 +11,7 @@ from .on_click import OnClick
 class Button:
 
     alt_text: Optional[str]
-    text: str
+    text: Optional[str]
     on_click: Optional[OnClick]
     color: Optional[Color]  = Color()
     icon: Optional[Icon] = None

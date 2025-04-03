@@ -12,7 +12,7 @@ def create_app():
     db.init_app(app)
 
     with app.app_context():
-        from .models import user, organisation, subscriptions
+        from .models import documents, user, organisation, stamps, subscriptions
         _ = Migrate(app, db)
 
         register_api(app)

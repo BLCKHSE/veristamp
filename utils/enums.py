@@ -32,12 +32,14 @@ class MaterialIconName(enum.Enum):
     ADD = 'add_2'
     STAMP = 'approval'
 
+
 class MenuItem(enum.Enum):
 
     HOME = 'home'
     DASHBOARD = 'dashboard'
     USERS = 'users'
     SETTINGS = 'settings'
+    TEMPLATES = 'templates'
 
 
 class PaymentMethod(enum.Enum):
@@ -96,7 +98,7 @@ class StampShape(enum.Enum):
     RECTANGLE = 'RECTANGLE'
     SQUARE = 'SQUARE'
     OVAL = 'OVAL'
-    CIRCLE = 'CICRLE'
+    CIRCLE = 'CIRCLE'
     HEXAGON = 'HEXAGON'
     TRIANGLE = 'TRIANGLE'
     STAR = 'STAR'

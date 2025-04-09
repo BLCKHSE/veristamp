@@ -18,7 +18,7 @@ class HomeService:
     '''Home screen service class'''
 
     CARD_ID_HOME = 'home.main'
-    TEMPLATES_CARD_URI = '/api/template'
+    TEMPLATES_CARD_URI = '/api/addon/templates'
 
     def __init__(self):
         self._navigation_service = NavigationService()
@@ -27,7 +27,7 @@ class HomeService:
         '''Creates the 'Add Stamp' btn with a decoratedText wrapper to aid with positioning'''
 
         create_stamp_btn: Button = Button(
-            alt_text='Create New Stamp',
+            alt_text='Create Stamp',
             text=None,
             on_click=OnClick(Action(function=f'{BASE_URL}{self.TEMPLATES_CARD_URI}')),
             icon=Icon(alt_text='Add stamp', material_icon=MaterialIcon(name=MaterialIconName.ADD.value)),

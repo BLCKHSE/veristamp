@@ -11,6 +11,12 @@ TESTING: bool = getenv('TESTING', False)
 
 CORS_ORIGINS: List[str] = [i.strip() for i in getenv('CORS_ORIGINS').split(",")]
 
+# CLOUDINARY
+CLOUDINARY_CLOUD_NAME: str = getenv('CLOUDINARY_CLOUD_NAME') 
+CLOUDINARY_API_KEY: str = getenv('CLOUDINARY_API_KEY') 
+CLOUDINARY_SECRET_KEY: str = getenv('CLOUDINARY_SECRET_KEY') 
+CLOUDINARY_URL: str = getenv('CLOUDINARY_URL') 
+
 # GOOGLE
 GOOGLE_CLIENT_ID: str = getenv('GOOGLE_CLIENT_ID')
 

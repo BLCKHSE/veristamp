@@ -22,4 +22,4 @@ class Grid:
     border_style: BorderStyle
     title: str
     items: List[GridItem]
-    on_clicl: OnClick
+    on_click: OnClick

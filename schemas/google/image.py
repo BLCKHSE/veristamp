@@ -19,7 +19,7 @@ class ImageSchema(Schema):
 
 class ImageCropStyleSchema(Schema):
 
-    aspect_ratio: Optional[float] = fields.Float(data_key='aspectRation')
+    aspect_ratio: Optional[float] = fields.Float(data_key='aspectRatio')
     type: Literal['SQUARE', 'CIRCLE', 'RECTANGLE_CUSTOM', 'RECTANGLE_4_3'] = fields.Str()
 
     @post_load

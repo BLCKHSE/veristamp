@@ -13,6 +13,7 @@ class GridItemSchema(Schema):
     layout: Literal['TEXT_BELOW', 'TEXT_ABOVE'] = fields.Str()
     title: str = fields.Str()
     subtitle: Optional[str] = fields.Str()
+    text_alignment: Optional[str] = fields.Str(data_key='textAlignment')
 
     @post_load
     def make_grid_item(self, data, **kwargs):

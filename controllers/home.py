@@ -1,4 +1,3 @@
-from pprint import pprint
 from typing import Optional
 
 from flask import jsonify, request

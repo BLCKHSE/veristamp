@@ -3,9 +3,10 @@ from flask.views import MethodView
 from marshmallow import ValidationError
 from werkzeug.datastructures import ImmutableMultiDict, FileStorage
 
+from ..dtos.google.action_render import ActionRender, Navigation
 from ..dtos.google.card import Card
 from ..services.templates import TemplateService
-from ..schemas.google.card import CardSchema
+from ..schemas.google.action_render_schema import ActionRenderSchema
 from ..schemas.templates.template import TemplateFileSchema, TemplateSchema
 from ..utils.decorators import authenticate
 
@@ -16,13 +17,15 @@ class TemplateAddonAPI(MethodView):
     
     def __init__(self):
         super().__init__()
-        self.response_schema = CardSchema()
+        self.response_schema = ActionRenderSchema()
         self._templates_service = TemplateService()
 
     @authenticate
     def post(self, **kwargs):
         templates_card: Card = self._templates_service.get_tamplates_card()
-        return jsonify(self.response_schema.dump(templates_card)), 200
+
+        render_action: ActionRender = ActionRender(Navigation(push_card=templates_card))
+        return jsonify(self.response_schema.dump(render_action)), 200
     
 
 class TemplateApi(MethodView):

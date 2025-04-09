@@ -8,5 +8,5 @@ from .color import Color
 class BorderStyle:
 
     corner_radius: Optional[int]
-    stroke_color: Optional[Color]
-    type: Literal['NO_BORDER', 'STRIKE']
+    stroke_color: Optional[Color] = Color()
+    type: Literal['NO_BORDER', 'STROKE'] = 'NO_BORDER'

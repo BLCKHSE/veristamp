@@ -6,10 +6,14 @@ from typing import Dict, List, Tuple
 from werkzeug.datastructures import ImmutableMultiDict, FileStorage
 
 from ..database import db
+from ..dtos.google.action import Action
+from ..dtos.google.border import BorderStyle
 from ..dtos.google.card import Card
 from ..dtos.google.chips import ChipList
-from ..dtos.google.grid import Grid
+from ..dtos.google.grid import Grid, GridItem
 from ..dtos.google.header import Header
+from ..dtos.google.image import ImageComponent
+from ..dtos.google.on_click import OnClick
 from ..dtos.google.section import Section
 from ..dtos.google.widget import Widget
 from ..models.stamps import StampTemplate, StampTemplateMetadata
@@ -22,6 +26,7 @@ from .cloudinary import Cloudinary
 class TemplateService:
 
     CARD_ID_TEMPLATES = 'templates.main'
+    SUBTITLE_CARD_TEMPLATES = 'add stamp > templates'
     TEMPLATES_DIR = './static/templates'
 
     def __init__(self):
@@ -29,7 +34,24 @@ class TemplateService:
         self._cloudinary_service = Cloudinary()
 
     def _get_templates_grid(self, templates: List[StampTemplate]) -> Grid:
-        pass
+        items: List[GridItem] = []
+        for template in templates:
+            image_component: ImageComponent = ImageComponent(
+                template.image_url, alt_text=template.description, border_style=None)
+            item: GridItem = GridItem(
+                id=template.id, title=template.name, image=image_component, text_alignment='END')
+            items.append(item)
+
+        item_onclick: OnClick = OnClick(action=Action(function=f''))
+        grid_border_style: BorderStyle = BorderStyle(corner_radius=5, type='STROKE')
+        templates_grid: Grid = Grid(
+            column_count=2,
+            items=items,
+            on_click=item_onclick,
+            border_style=grid_border_style
+        )
+
+        return templates_grid
 
     def _save_template_file(self, file: FileStorage) -> str:
         '''Saves template svg file'''
@@ -88,9 +110,13 @@ class TemplateService:
         menu_section: Section = Section(header=None, widgets=[Widget(chip_list=menu)])
         templates: List[StampTemplate] = self.get_templates()
         # create templates card
+        templates_section: Section = Section(
+            header='Select Template',
+            widgets=[Widget(grid=self._get_templates_grid(templates))]
+        )
         card: Card = Card(
             name=self.CARD_ID_TEMPLATES,
-            header=Header(self.CARD_SUBTITLE_TEMPLATES),
-            sections=[menu_section]
+            header=Header(self.SUBTITLE_CARD_TEMPLATES),
+            sections=[menu_section, templates_section]
         )
         return card

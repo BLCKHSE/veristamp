@@ -56,7 +56,7 @@ class HomeService:
 
         card: Card = Card(
             name=self.CARD_ID_HOME,
-            header=Header(f'Welcome, {user.first_name.upper()}'),
+            header=Header(f'Hey {user.first_name.upper()}'),
             sections=[menu_section, create_section]
         )
         return card

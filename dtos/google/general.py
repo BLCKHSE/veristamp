@@ -64,6 +64,7 @@ class Common:
     platform: Platform
     time_zone: TimeZone
     form_inputs: Optional[dict[str, FormInput]] = None
+    parameters: Optional[dict[str, str]] = None
 
 
 @dataclass
@@ -71,9 +72,9 @@ class Auth:
 
     system_id_token: str 
     user_o_auth_token: str
-    user_email: str
     user_id_token: str
-    email_verified: bool
+    user_email: Optional[str] = None
+    email_verified: bool = False
     client_id: Optional[str] = None
     expiry_timestamp: Optional[datetime] = None
     issuer: Optional[str] = None

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import Dict, List
 
 from sqlalchemy import JSON, TIMESTAMP, Enum as EnumSQL, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -7,7 +7,9 @@ from sqlalchemy.dialects.postgresql import ENUM
 from werkzeug.datastructures import ImmutableMultiDict
 
 from ..database import db
-from ..utils.enums import StampEvent, StampShape, StampTemplateKey, Status
+from ..dtos.google.literals import InputType
+from .user import User
+from ..utils.enums import StampEvent, StampItemPosition, StampShape, StampTemplateKey, Status
 from ..utils.generators import Generators
 
 
@@ -28,13 +30,18 @@ class StampTemplateMetadata(db.Model):
         nullable=False
     )
     max_size: Mapped[int] = mapped_column(Integer, default=15)
+    type: Mapped[InputType] = mapped_column(String, default='TEXT')
+    position: Mapped[StampItemPosition] = mapped_column(EnumSQL(StampItemPosition, name='stamp_item_position'), nullable=True)
 
     def __init__(self, key: StampTemplateKey, max_size: int):
         self.key = key
         self.max_size = max_size
 
     def __repr__(self) -> str:
-        return f'StampTemplateMetadata (id={self.id}, key={self.key}, template={self.template_id})'
+        return f'''
+            StampTemplateMetadata (id={self.id}, key={self.key}, 
+            template={self.template_id}, description={self.description})
+            '''
     
     def save(self):
         db.session.add(self)
@@ -77,6 +84,7 @@ class Stamp(db.Model):
     color_code: Mapped[str] = mapped_column(String(10))
     created_by: Mapped[str] = mapped_column(ForeignKey('users.id'))
     created_on: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=datetime.now)
+    creator: Mapped[User] = relationship(User, primaryjoin=created_by==User.id)
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda:Generators.getAlphaNum(8))
     name: Mapped[str] = mapped_column(String(30), nullable=False)
     status: Mapped[Status] = mapped_column(ENUM(Status, create_type=False), default=Status.ACT)
@@ -85,6 +93,10 @@ class Stamp(db.Model):
     updated_on: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=datetime.now)
     updated_by: Mapped[str] = mapped_column(ForeignKey('users.id'), nullable=True)
     image_url: Mapped[str] = mapped_column(String)
+
+    def __init__(self):
+        super().__init__()
+        self.status = Status.ACT
 
 
 class StampApplication(db.Model):

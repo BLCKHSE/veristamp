@@ -31,6 +31,7 @@ class MaterialIconName(enum.Enum):
 
     ADD = 'add_2'
     STAMP = 'approval'
+    PREVIEW = 'preview'
 
 
 class MenuItem(enum.Enum):
@@ -93,6 +94,15 @@ class StampEvent(enum.Enum):
     GENERAL = 'GENERAL'
 
 
+class StampItemPosition(enum.Enum):
+
+    TOP = 'top'
+    CENTER = 'center'
+    BOTTOM = 'bottom'
+    LEFT = 'left'
+    RIGHT = 'right'
+
+
 class StampShape(enum.Enum):
 
     RECTANGLE = 'RECTANGLE'
@@ -108,6 +118,7 @@ class StampTemplateKey(enum.Enum):
 
     NAME = 'NAME'
     ADDRESS = 'PHYSICAL ADDRESS'
+    POSTAL_ADDRESS = 'POSTAL ADDRESS'
     EMAIL = 'EMAIL'
     PHONE = 'PHONE NUMBER'
     TAGLINE = 'TAGLINE'

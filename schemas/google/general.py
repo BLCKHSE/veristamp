@@ -82,6 +82,7 @@ class CommonSchema(Schema):
 
     user_locale: str = fields.Str(data_key='userLocale')
     host_app: HostApp = fields.Str(data_key='hostApp')
+    parameters: Optional[dict[str, str]] = fields.Dict()
     platform: Platform = fields.Str()
     time_zone: TimeZoneSchema = fields.Nested(TimeZoneSchema, data_key='timeZone')
     form_inputs: Optional[dict[str, FormInputSchema]] = fields.Dict(

@@ -1,6 +1,6 @@
 from typing import List, Literal, Optional
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_dump, post_load
 
 from .action import ActionSchema
 from ...dtos.google.literals import InputType
@@ -11,7 +11,7 @@ class SelectionItemSchema(Schema):
 
     bottom_text: Optional[str] = fields.Str()
     selected: bool = fields.Bool()
-    start_icon_uri: str = fields.Str(data_key='startIconUrl')
+    start_icon_uri: str = fields.Str(data_key='startIconUri')
     text: str = fields.Str()
     value: str = fields.Str()
 
@@ -69,7 +69,7 @@ class SelectionInputSchema(Schema):
     multi_select_max_selected_items: int = fields.Int(data_key='multiSelectMaxSelectedItems')
     multi_select_min_query_length: int = fields.Int(data_key='multiSelectMinQueryLength')
     name: str = fields.Str()
-    on_change_action: ActionSchema = fields.Nested(ActionSchema , data_key='onchangeAction')
+    on_change_action: ActionSchema = fields.Nested(ActionSchema , data_key='onChangeAction')
     platform_data_source: dict = fields.Dict(data_key='platformDataSource')
     type: Literal['CHECK_BOX', 'RADIO_BUTTON', 'SWITCH', 'DROPDOWN', 'MULTI_SELECT'] = fields.Str()
 
@@ -92,5 +92,12 @@ class TextInputSchema(Schema):
     validation: ValidationSchema = fields.Nested(ValidationSchema)
 
     @post_load
-    def make_text_input(self, data, **kwargs):
+    def make_text_input(self, data, **_):
         return TextInput(**data)
+    
+    @post_dump
+    def remove_empty_values(self, data, **_):
+        return {
+            key: value for key, value in data.items()
+            if value is not None
+        }

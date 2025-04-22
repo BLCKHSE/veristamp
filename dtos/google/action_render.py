@@ -52,7 +52,7 @@ class ActionRenderAction:
     notification: ActionNotification
 
     def __init__(self, navigation: Navigation, notification_msg: str):
-        self.notification = ActionNotification(notification_msg)
+        self.notification = ActionNotification(notification_msg) if notification_msg != None else None
         self.navigations = [navigation]
 
 @dataclass

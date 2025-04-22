@@ -1,6 +1,6 @@
 
 from typing import Optional
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_dump, post_load
 
 from .button import ButtonListSchema
 from .chips import ChipListSchema
@@ -34,3 +34,11 @@ class WidgetSchema(Schema):
     @post_load
     def make_widget(self, data, **kwargs):
         return Widget(**data)
+    
+    # TODO: Move to abstract class
+    @post_dump
+    def remove_empty_values(self, data, **_):
+        return {
+            key: value for key, value in data.items()
+            if value is not None
+        }

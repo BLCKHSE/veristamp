@@ -1,5 +1,5 @@
 from typing import Optional
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_dump, post_load
 
 from .action import ActionSchema
 from .link import OpenLinkSchema
@@ -18,3 +18,11 @@ class OnClickSchema(Schema):
     @post_load
     def make_on_click(self, data, **kwargs):
         return OnClick(**data)
+    
+    @post_dump
+    def remove_empty_values(self, data, **_):
+        return {
+            key: value for key, value in data.items()
+            if value is not None
+        }
+

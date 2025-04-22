@@ -1,11 +1,13 @@
-from datetime import datetime
 import json
+from datetime import datetime
 from os import mkdir, path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from werkzeug.datastructures import ImmutableMultiDict, FileStorage
 
+from .cloudinary import Cloudinary
 from ..database import db
+from ..data.constants import ADD_STAMP_URI, CARD_ID_TEMPLATES, SUBTITLE_CARD_TEMPLATES, TEMPLATES_DIR
 from ..dtos.google.action import Action
 from ..dtos.google.border import BorderStyle
 from ..dtos.google.card import Card
@@ -20,14 +22,9 @@ from ..models.stamps import StampTemplate, StampTemplateMetadata
 from ..services.navigation import NavigationService
 from ..settings import BASE_URL
 from ..utils.enums import MenuItem, Status
-from .cloudinary import Cloudinary
 
 
 class TemplateService:
-
-    CARD_ID_TEMPLATES = 'templates.main'
-    SUBTITLE_CARD_TEMPLATES = 'add stamp > templates'
-    TEMPLATES_DIR = './static/templates'
 
     def __init__(self):
         self._navigation_service = NavigationService()
@@ -42,7 +39,7 @@ class TemplateService:
                 id=template.id, title=template.name, image=image_component, text_alignment='END')
             items.append(item)
 
-        item_onclick: OnClick = OnClick(action=Action(function=f''))
+        item_onclick: OnClick = OnClick(action=Action(function=f'{BASE_URL}{ADD_STAMP_URI}'))
         grid_border_style: BorderStyle = BorderStyle(corner_radius=5, type='STROKE')
         templates_grid: Grid = Grid(
             column_count=2,
@@ -57,9 +54,9 @@ class TemplateService:
         '''Saves template svg file'''
 
         filename: str = f'{file.filename.removesuffix(".svg")}_{int(datetime.now().timestamp())}.svg'
-        file_path = path.join(self.TEMPLATES_DIR, filename)
-        if not path.isdir(self.TEMPLATES_DIR):
-            mkdir(self.TEMPLATES_DIR)
+        file_path = path.join(TEMPLATES_DIR, filename)
+        if not path.isdir(TEMPLATES_DIR):
+            mkdir(TEMPLATES_DIR)
         file.save(file_path)
         file.close()
 
@@ -81,18 +78,21 @@ class TemplateService:
         try:
             filename: str = self._save_template_file(template_file)
             template_image_url: str = self._cloudinary_service.upload(
-                file=path.join(f'{BASE_URL}{self.TEMPLATES_DIR.replace(".", "")}', filename), 
-                image_id=filename
+                file=path.join(f'{BASE_URL}{TEMPLATES_DIR.replace(".", "")}', filename), 
+                image_id=filename.removesuffix(".svg"),
+                format='png'
             )
             # template_image_url: str = 'https://res.cloudinary.com/dr5li7c0i/image/upload/v1744191455/vs_templates/rect_1744191453.png'
 
             template = StampTemplate(
                 data=data,
                 image_url=template_image_url,
-                dir=path.join(f'{self.TEMPLATES_DIR.replace(".", "")}', filename)
+                dir=path.join(f'{TEMPLATES_DIR.replace(".", "")}', filename)
             )
             metadata: list[dict[str, object]] = json.loads(data.get('metadata'))
-            template_metadata: list[StampTemplateMetadata] = [StampTemplateMetadata(entry.get('key'), entry.get('maxSize')) for entry in metadata]
+            template_metadata: list[StampTemplateMetadata] = [
+                StampTemplateMetadata(entry.get('key'), entry.get('maxSize')) for entry in metadata
+            ]
             template.template_metadata.extend(template_metadata)
             db.session.add(template)
             db.session.add_all(template_metadata)
@@ -102,6 +102,9 @@ class TemplateService:
 
         return template, errors
 
+    def get_template(self, template_id: str) -> Optional[StampTemplate]:
+        return db.session.scalar(db.select(StampTemplate).filter_by(id=template_id))
+
     def get_templates(self) -> List[StampTemplate]:
         return db.session.scalars(db.select(StampTemplate).filter_by(status=Status.ACT)).all()
 
@@ -109,14 +112,14 @@ class TemplateService:
         menu: ChipList = self._navigation_service.get_menu(active_page=MenuItem.TEMPLATES)
         menu_section: Section = Section(header=None, widgets=[Widget(chip_list=menu)])
         templates: List[StampTemplate] = self.get_templates()
-        # create templates card
+
         templates_section: Section = Section(
             header='Select Template',
             widgets=[Widget(grid=self._get_templates_grid(templates))]
         )
         card: Card = Card(
-            name=self.CARD_ID_TEMPLATES,
-            header=Header(self.SUBTITLE_CARD_TEMPLATES),
+            name=CARD_ID_TEMPLATES,
+            header=Header(SUBTITLE_CARD_TEMPLATES),
             sections=[menu_section, templates_section]
         )
         return card

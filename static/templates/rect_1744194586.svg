@@ -1,8 +1,8 @@
 <svg width="300" height="150" xmlns="http://www.w3.org/2000/svg">
   <rect width="200" height="120" x="10" y="10" rx="2" ry="2"  style="stroke-width:3;stroke:#444484;fill-opacity:0;stroke-opacity:0.9;" />
-  <text x="110" y="35" font-size="20" text-anchor="middle" fill="#444484">HOUSE OF MOIRA</text>
+  <text x="110" y="35" font-size="20" text-anchor="middle" fill="#444484">{NAME}</text>
   <line x1="20" y1="45" x2="200" y2="45" style="stroke:#444484;stroke-width:2" />
-  <text x="110" y="100" font-size="8" text-anchor="middle" fill="#444484">P.O. BOX 6426 - 00300, R. NGALA ST.</text>
-  <text x="110" y="115" font-size="8" text-anchor="middle" fill="#444484">EMAIL: HELLO@HOUSEOFMOIRA.AFRICA</text>
-  <text x="110" y="125" font-size="8" text-anchor="middle" fill="#444484">PHONE: +254 722 228224</text>
+  <text x="110" y="100" font-size="8" text-anchor="middle" fill="#444484">{POSTAL_ADDRESS}</text>
+  <text x="110" y="115" font-size="8" text-anchor="middle" fill="#444484">EMAIL: {EMAIL}</text>
+  <text x="110" y="125" font-size="8" text-anchor="middle" fill="#444484">PHONE: {PHONE}</text>
 </svg>

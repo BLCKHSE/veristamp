@@ -8,11 +8,11 @@ from .literals import InputType
 @dataclass
 class SelectionItem:
 
-    bottom_text: Optional[str]
-    selected: bool
-    start_icon_uri: str
     text: str
     value: str
+    bottom_text: Optional[str] = None
+    selected: bool = False
+    start_icon_uri: Optional[str] = None
 
 
 @dataclass
@@ -47,26 +47,27 @@ class DateTimePicker:
 @dataclass
 class SelectionInput:
 
-    external_dat_source: Optional[Action]
     label: str
     items: List[SelectionItem]
-    multi_select_max_selected_items: int
-    multi_select_min_query_length: int
     name: str
-    on_change_action: Action
-    platform_data_source: dict
-    type: Literal['CHECK_BOX', 'RADIO_BUTTON', 'SWITCH', 'DROPDOWN', 'MULTI_SELECT']
+    external_data_source: Optional[Action] = None
+    multi_select_max_selected_items: Optional[int] = None
+    multi_select_min_query_length: Optional[int] = None
+    on_change_action: Optional[Action] = None
+    platform_data_source: Optional[dict] = None
+    type: Literal['CHECK_BOX', 'RADIO_BUTTON', 'SWITCH', 'DROPDOWN', 'MULTI_SELECT'] = 'DROPDOWN'
+
 
 @dataclass
 class TextInput:
 
-    auto_completion_action: Action
-    label:str
-    hint_text: Optional[str]
-    initial_suggestions: Suggestions
     name: str
     on_change_action: Action
-    placeholder_text: Optional[str]
-    type: Literal['SINGLE_LINE', 'MULTIPLE_LINE']
-    value: str
-    validation: Validation
+    auto_completion_action: Optional[Action] = None
+    hint_text: Optional[str] = None # Required if label is unspecified.
+    initial_suggestions: Optional[Suggestions] = None
+    label:Optional[str] = None
+    type: Literal['SINGLE_LINE', 'MULTIPLE_LINE'] = 'SINGLE_LINE'
+    placeholder_text: Optional[str] = None
+    validation: Optional[Validation] = None
+    value: Optional[str] = None

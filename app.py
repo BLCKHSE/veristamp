@@ -2,7 +2,15 @@ from flask import Flask, jsonify, url_for
 from flask_cors import CORS
 from flask_migrate import Migrate
 
-from .controllers import HomeAPI, SubscriptionAPI, TemplateApi, TemplateAddonAPI, UserAPI
+from .controllers import (
+    HomeAPI,
+    StampAddonApi,
+    SubscriptionAPI,
+    TemplateApi,
+    TemplateAddonAPI,
+    TemplateStampApi,
+    UserAPI
+)
 from .database import db
 
 def create_app():
@@ -28,6 +36,8 @@ def register_api(app: Flask):
     app.add_url_rule('/api/payments/<string:provider>', view_func=SubscriptionAPI.as_view('subscriptions'))
     app.add_url_rule('/api/addon/templates', view_func=TemplateAddonAPI.as_view('addon_templates'))
     app.add_url_rule('/api/templates', view_func=TemplateApi.as_view('templates'))
+    app.add_url_rule('/api/addon/templates/stamps', view_func=TemplateStampApi.as_view('stamp_templates'))
+    app.add_url_rule('/api/addon/stamps', view_func=StampAddonApi.as_view('stamps'))
 
 app = create_app()
 

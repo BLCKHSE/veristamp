@@ -4,10 +4,12 @@ from flask import jsonify, request
 from flask.views import MethodView
 
 from ..database import db
+from ..dtos.google.action_render import ActionRender, Navigation
 from ..dtos.google.card import Card
 from ..dtos.google.general import General
 from ..models.subscriptions import SubscriptionOrganisation
 from ..models.user import User
+from ..schemas.google.action_render_schema import ActionRenderSchema
 from ..schemas.google.card import CardSchema
 from ..schemas.google.general import GeneralSchema
 from ..services.home import HomeService
@@ -21,6 +23,7 @@ class HomeAPI(MethodView):
 
     def __init__(self):
         super().__init__()
+        self._action_render_schema = ActionRenderSchema()
         self.request_schema = GeneralSchema()
         self.response_schema = CardSchema()
         self._home_service = HomeService()
@@ -32,6 +35,7 @@ class HomeAPI(MethodView):
 
         payload: General = self.request_schema.load(request.get_json())
         email: str = payload.authorization_event_object.user_email
+        referrer: str = payload.common_event_object.parameters.get('referrer', 'link')
         user: Optional[User] = db.session.scalar(db.select(User).filter_by(email=email))
 
         if user == None:
@@ -43,5 +47,8 @@ class HomeAPI(MethodView):
             if org_subscription != None
             else  SubscriptionPlanService().get_subscription_plan_card()
         )
+
+        if referrer == 'nav':
+            return jsonify(self._action_render_schema.dump(ActionRender(Navigation(update_card=card))))
 
         return jsonify(self.response_schema.dump(card)), 200

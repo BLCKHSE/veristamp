@@ -1,3 +1,4 @@
+from ..data.constants import CARD_ID_HOME, TEMPLATES_CARD_URI
 from ..dtos.google.action import Action
 from ..dtos.google.button import Button
 from ..dtos.google.card import Card
@@ -9,6 +10,7 @@ from ..dtos.google.section import Section
 from ..dtos.google.widget import Widget 
 from ..models.user import User
 from ..services.navigation import NavigationService
+from ..services.stamps import StampService
 from ..settings import BASE_URL
 from ..utils.enums import MaterialIconName, MenuItem
 from ..utils.generators import Generators
@@ -17,11 +19,9 @@ from ..utils.generators import Generators
 class HomeService:
     '''Home screen service class'''
 
-    CARD_ID_HOME = 'home.main'
-    TEMPLATES_CARD_URI = '/api/addon/templates'
-
     def __init__(self):
         self._navigation_service = NavigationService()
+        self._stamp_service = StampService()
 
     def _get_create_stamp_btn_wrapper(self)-> DecoratedText:
         '''Creates the 'Add Stamp' btn with a decoratedText wrapper to aid with positioning'''
@@ -29,7 +29,7 @@ class HomeService:
         create_stamp_btn: Button = Button(
             alt_text='Create Stamp',
             text=None,
-            on_click=OnClick(Action(function=f'{BASE_URL}{self.TEMPLATES_CARD_URI}')),
+            on_click=OnClick(Action(function=f'{BASE_URL}{TEMPLATES_CARD_URI}')),
             icon=Icon(alt_text='Add stamp', material_icon=MaterialIcon(name=MaterialIconName.ADD.value)),
             type='FILLED'
         )
@@ -52,11 +52,11 @@ class HomeService:
             header=None,
             widgets=[Widget(decorated_text=self._get_create_stamp_btn_wrapper())]
         )
-        # TODO: Add stamps grid
+        stamps_section: Section = self._stamp_service.get_stamps_section(user.id)
 
         card: Card = Card(
-            name=self.CARD_ID_HOME,
+            name=CARD_ID_HOME,
             header=Header(f'Hey {user.first_name.upper()}'),
-            sections=[menu_section, create_section]
+            sections=[menu_section, create_section, stamps_section]
         )
         return card

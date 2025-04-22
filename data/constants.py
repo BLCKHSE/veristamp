@@ -1,5 +1,6 @@
 # CARD ID
 CARD_ID_CREATE_STAMP = 'stamp.create'
+CARD_ID_HOME = 'home.main'
 
 # CARD_SUBTITLES
 SUBTITLE_CARD_CREATE_STAMP = 'add stamp > templates > enter details'
@@ -10,8 +11,13 @@ CLOUDINARY_STAMPS_FOLDER = 'stamps'
 
 # URI
 ADD_STAMP_URI: str = '/api/addon/templates/stamps'
+DASHBOARD_URI: str = '/api/addon/dashboard'
+HOME_URI: str = '/api/addon/home'
 STAMPS_URI = '/api/addon/stamps'
 STAMPS_PREVIEW_URI = '/api/addon/stamps/preview'
+TEMPLATES_CARD_URI = '/api/addon/templates'
+ADD_USERS_URI: str = '/api/addon/users'
+USERS_URI: str = '/api/addon/admin/users'
 
 # TEMPLATES
 CARD_ID_TEMPLATES: str = 'templates.main'

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from ..data.constants import (
     CARD_ID_CREATE_STAMP,
@@ -11,20 +11,22 @@ from ..data.constants import (
 )
 from ..database import db
 from ..dtos.google.action import Action, ActionParameter
+from ..dtos.google.border import BorderStyle
 from ..dtos.google.button import Button
 from ..dtos.google.card import Card
 from ..dtos.google.chips import ChipList
 from ..dtos.google.decorated_text import DecoratedText
 from ..dtos.google.footer import Footer
 from ..dtos.google.general import FormInput
+from ..dtos.google.grid import Grid, GridItem
 from ..dtos.google.icon import Icon, MaterialIcon
-from ..dtos.google.image import Image
+from ..dtos.google.image import Image, ImageComponent
 from ..dtos.google.input import SelectionInput, SelectionItem, TextInput, Validation
 from ..dtos.google.header import Header
 from ..dtos.google.on_click import OnClick
 from ..dtos.google.section import Section
 from ..dtos.google.widget import Widget
-from ..models.stamps import Stamp, StampTemplate, StampTemplateMetadata
+from ..models.stamps import Stamp, StampTemplate, StampTemplateMetadata, StampUser
 from ..models.user import User
 from ..services.cloudinary import Cloudinary
 from ..services.templates import TemplateService
@@ -163,6 +165,27 @@ class StampService:
         )
         return form_footer
 
+    def _get_stamps_grid(self, stamps: List[Stamp]) -> Grid:
+        '''Get grid of stamps'''
+        items: List[GridItem] = []
+        for stamp in stamps:
+            image_component: ImageComponent = ImageComponent(
+                stamp.image_url, alt_text=stamp.name, border_style=None)
+            item: GridItem = GridItem(
+                id=stamp.id, title=stamp.name, image=image_component, text_alignment='END')
+            items.append(item)
+
+        item_onclick: OnClick = OnClick(action=Action(function=f'{BASE_URL}{STAMPS_URI}'))
+        grid_border_style: BorderStyle = BorderStyle(corner_radius=5, type='STROKE')
+        stamps_grid: Grid = Grid(
+            column_count=2,
+            items=items,
+            on_click=item_onclick,
+            border_style=grid_border_style
+        )
+
+        return stamps_grid
+
     def _get_variable_filled_stamp(
         self, 
         template: StampTemplate,
@@ -189,8 +212,19 @@ class StampService:
 
         return updated_template
 
-    def create(self, template_id: str, form_inputs: dict[str, FormInput], creator_email: Optional[str]) -> Tuple[Stamp, Optional[dict[str, str]]]:
+    def create(
+        self, template_id: str, form_inputs: dict[str, FormInput], creator_email: Optional[str]
+    ) -> Tuple[Stamp, Optional[dict[str, str]]]:
         '''Creates a client specific stamp record to be used when applying stamps to documents
+        
+            Parameters:
+                - self (StampService)
+                - template_id (str)
+                - form_inputs (dict[str, FormInput]): create stamp form inputs
+                - creator_email (str)
+
+            Returns:
+                (Tuple[Stamp, Optional[dict[str, str]]]): tuple of created stamp or errors encountered
         '''
         template: Optional[StampTemplate] = self._template_service.get_template(template_id)
         if template == None:
@@ -202,7 +236,8 @@ class StampService:
             stamp_url: str = self._cloudinary_service.upload(
                 file=self._get_variable_filled_stamp(template=template, form_inputs=form_inputs).encode(), 
                 image_id=f'{template.id}_{user.id}_{int(datetime.now().timestamp())}',
-                folder=f'{CLOUDINARY_STAMPS_FOLDER}/{user.organisation_id}'
+                folder=f'{CLOUDINARY_STAMPS_FOLDER}/{user.organisation_id}',
+                format='png'
             )
 
             stamp = Stamp()
@@ -215,10 +250,11 @@ class StampService:
                 key: val.stringInputs.value[0] for key, val in form_inputs.items() if key not in self._GENERAL_INPUTS
             }
             stamp.updated_by = user.id
+            stamp.stamp_users.append(StampUser(user.id))
             db.session.add(stamp)
             db.session.commit()
         except Exception as err:
-            errors = err
+            errors = {'error': err}
 
         return stamp, errors
     
@@ -236,3 +272,29 @@ class StampService:
             fixed_footer=self._get_stamp_form_submit_footer(template.id)
         )
         return card
+    
+    def get_stamps(self, user_id: str) -> List[Stamp]:
+        '''Gets all stamps assigned to a user'''
+        return db.session.scalars(
+            statement=db.select(Stamp)
+                .join(StampUser)
+                .where(StampUser.user_id==user_id)
+            ).all()
+    
+    def get_stamp(self, stamp_id: str) -> Optional[Stamp]:
+        return db.session.scalar(db.select(Stamp).filter_by(id=stamp_id))
+
+    def get_stamps_section(self, user_id: str) -> Section:
+        '''Gets the GWAO section wrapper with all valid org stamps
+        
+            Parameters:
+                - self (StampService)
+                - user_id (str)
+
+            Returns:
+                - stamps_section (Section)
+        '''
+        stamps: List[Stamp] = self.get_stamps(user_id)
+        stamp_grid: Grid = self._get_stamps_grid(stamps)
+
+        return Section(widgets=[Widget(grid=stamp_grid)], header='Your Stamps')

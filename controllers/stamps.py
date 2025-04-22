@@ -26,9 +26,10 @@ class  StampAddonApi(MethodView):
 
     @authenticate
     def post(self, **kwargs):
+        '''Create stamp endpoint'''
         payload: General = self._general_schema.load(request.get_json())
         template_id: str = request.args.get('t_id')
-        user_email: str = kwargs.get('user_email')
+        user_email: str = payload.authorization_event_object.user_email
         result: Tuple[Stamp, dict[str, str]] = self._stamp_service.create(
             template_id=template_id,
             form_inputs=payload.common_event_object.form_inputs,

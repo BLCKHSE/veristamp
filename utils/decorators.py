@@ -24,8 +24,7 @@ def authenticate(func):
         payload: dict = request.get_json()
         auth_event: object = payload.get('authorizationEventObject')
         try:
-            data = Auth().load(auth_event)
-            kwargs['user_email'] = data['user_email']
+            _ = Auth().load(auth_event)
         except ValidationError as err:
             return jsonify({}), 403
         return func(*args, **kwargs)

@@ -87,6 +87,7 @@ class Stamp(db.Model):
     creator: Mapped[User] = relationship(User, primaryjoin=created_by==User.id)
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda:Generators.getAlphaNum(8))
     name: Mapped[str] = mapped_column(String(30), nullable=False)
+    stamp_users: Mapped[List['StampUser']] = relationship(back_populates='stamp')
     status: Mapped[Status] = mapped_column(ENUM(Status, create_type=False), default=Status.ACT)
     template_id: Mapped[str] = mapped_column(ForeignKey("stamp_templates.id"), nullable=False)
     template_content: Mapped[dict] = mapped_column(JSON)
@@ -120,7 +121,12 @@ class StampUser(db.Model):
     __tablename__ = 'stamp_users'
 
     stamp_id: Mapped[str] = mapped_column(ForeignKey("stamps.id"), primary_key=True, nullable=False)
+    stamp: Mapped[Stamp] = relationship(back_populates='stamp_users')
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), primary_key=True, nullable=False)
+
+    def __init__(self, user_id: str):
+        super().__init__()
+        self.user_id = user_id
 
 
 class StampAuditLog(db.Model):

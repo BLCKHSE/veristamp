@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Optional
 
@@ -64,7 +64,7 @@ class Common:
     platform: Platform
     time_zone: TimeZone
     form_inputs: Optional[dict[str, FormInput]] = None
-    parameters: Optional[dict[str, str]] = None
+    parameters: Optional[dict[str, str]] = field(default_factory=lambda: {})
 
 
 @dataclass

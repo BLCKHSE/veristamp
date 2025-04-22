@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from os import getenv
 
+from ..data.constants import ADD_USERS_URI
 from ..dtos.google.header import Header
 from ..utils.enums import BusinessCategory
 
@@ -109,7 +110,7 @@ class OnboardService:
                     },
                     "onClick": {
                         "action": {
-                            "function": f"{self.BASE_URL}/api/users",
+                            "function": f"{self.BASE_URL}{ADD_USERS_URI}",
                             "loadIndicator": "SPINNER"
                         }
                     }

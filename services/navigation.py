@@ -1,6 +1,7 @@
 from typing import List, Optional
 
-from ..dtos.google.action import Action
+from ..data.constants import DASHBOARD_URI, HOME_URI, USERS_URI
+from ..dtos.google.action import Action, ActionParameter
 from ..dtos.google.chips import Chip, ChipList
 from ..dtos.google.icon import Icon, MaterialIcon
 from ..dtos.google.on_click import OnClick
@@ -11,17 +12,17 @@ from ..utils.enums import MenuItem
 MENU_ITEMS: List[dict] = [
     {
         'label': MenuItem.HOME,
-        'action': '/api/home',
+        'action': HOME_URI,
         'material_icon': 'home'
     },
     {
         'label': MenuItem.DASHBOARD,
-        'action': '/api/dashboard',
+        'action': DASHBOARD_URI,
         'material_icon': 'dashboard_2'
     },
     {
         'label': MenuItem.USERS,
-        'action': '/api/admin/users',
+        'action': USERS_URI,
         'material_icon': 'group'
     }
 ]
@@ -29,7 +30,7 @@ MENU_ITEMS: List[dict] = [
 class NavigationService:
 
     def _get_menu_chip(self, action: str, icon: str, label: Optional[str])-> Chip:
-        on_click: OnClick = OnClick(action=Action(function=f'{BASE_URL}{action}'))
+        on_click: OnClick = OnClick(action=Action(function=f'{BASE_URL}{action}', parameters=[ActionParameter('referrer', "nav")]))
         icon: Icon = Icon(alt_text=f'{label} menu icon', material_icon=MaterialIcon(name=icon))
         chip: Chip = Chip(
             on_click=on_click,

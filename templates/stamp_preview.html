@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% include 'head.html' %}
+  <body>
+    {% include 'nav.html' %}
+    <div class="main">
+      {% if success %}
+      <div class="preview-container">
+        <div class="preview-img-container raised-box">
+          {{ stamp|safe }}
+        </div>
+        <div class="preview-btn-container raised-box no-bg">
+          <div class="btn-wrapper">
+            <button id="go-back-btn" role="button" onclick="window.close()">
+              <span class="material-symbols-outlined">edit</span> BACK TO CREATE STAMP
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="preview-container">
+        <div class="preview-title-container raised-box">
+          <span class="material-symbols-outlined">preview</span>PREVIEW DETAILS
+        </div>
+        <div class="preview-info-container raised-box">
+          <form class="preview-form">
+            <div class="input-wrapper">
+              <label for="stamp-name-input">
+                <input type="text" value="{{ name if name != None else 'NOT PROVIDED'}}" id="stamp-name-input" disabled>
+                <span>STAMP NAME</span>
+              </label>
+              {% for key, value in content.items() %}
+              <label for={{key + '-input'}}>
+                <input type="text" value="{{ value if value != None else 'NOT PROVIDED' }}" id={{key.lower() + '-input'}} placeholder={{ key }} disabled>
+                <span>{{ key.upper() }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </form>
+        </div>
+      </div>
+      {% else %}
+      <div class="preview-container raised-box error-box no-bg">
+        <div class="error-msg">
+          <span class="material-symbols-outlined">error</span>STAMP NOT AVAILABLE
+        </div>
+        <button id="go-back-btn" role="button" onclick="window.close()">CANCEL</button>
+      </div>
+      {% endif %}
+    </div>
+  </body>
+  <script>
+    // sets colour of input values based on if avaiable or not
+    const inputs = document.getElementsByTagName('input');
+
+    function updateInputColor(input) {
+      if (input.value === "NOT PROVIDED") {
+        input.classList.add("not-provided");
+        input.classList.remove("provided");
+      } else {
+        input.classList.add("provided");
+        input.classList.remove("not-provided");
+      }
+    }
+
+    for (const input of inputs) {
+      updateInputColor(input);
+    }
+  </script>
+</html>

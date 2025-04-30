@@ -11,6 +11,11 @@ TESTING: bool = getenv('TESTING', False)
 
 CORS_ORIGINS: List[str] = [i.strip() for i in getenv('CORS_ORIGINS').split(",")]
 
+# CACHE
+CACHE_TYPE: str = getenv('CACHE_TYPE')
+CACHE_DEFAULT_TIMEOUT: int = int(getenv('CACHE_DEFAULT_TIMEOUT'))
+CACHE_DIR: str = getenv('CACHE_DIR')
+
 # CLOUDINARY
 CLOUDINARY_CLOUD_NAME: str = getenv('CLOUDINARY_CLOUD_NAME') 
 CLOUDINARY_API_KEY: str = getenv('CLOUDINARY_API_KEY') 

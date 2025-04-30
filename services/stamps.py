@@ -1,6 +1,7 @@
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
+from ..cache import cache
 from ..data.constants import (
     CARD_ID_CREATE_STAMP,
     CLOUDINARY_STAMPS_FOLDER, 
@@ -17,7 +18,7 @@ from ..dtos.google.card import Card
 from ..dtos.google.chips import ChipList
 from ..dtos.google.decorated_text import DecoratedText
 from ..dtos.google.footer import Footer
-from ..dtos.google.general import FormInput
+from ..dtos.google.general import FormInput, StringInput
 from ..dtos.google.grid import Grid, GridItem
 from ..dtos.google.icon import Icon, MaterialIcon
 from ..dtos.google.image import Image, ImageComponent
@@ -33,7 +34,7 @@ from ..services.templates import TemplateService
 from ..services.user import UserService
 from ..services.navigation import NavigationService
 from ..settings import BASE_URL, THEME_PRIMARY_COLOUR
-from ..utils.enums import MaterialIconName, MenuItem
+from ..utils.enums import MaterialIconName, MenuItem, Status
 
 
 class StampService:
@@ -142,20 +143,21 @@ class StampService:
             alt_text='Submit Create Stamp Form',
             text='SUBMIT',
             on_click=OnClick(action=Action(
-                function=f'{BASE_URL}/{STAMPS_URI}?t_id={template_id}',
-                required_widgets=self._required_create_stamp_inputs
+                function=f'{BASE_URL}/{STAMPS_URI}',
+                required_widgets=self._required_create_stamp_inputs,
+                parameters=[ActionParameter('template_id', template_id)]
             ))
         )
         preview_btn: Button = Button(
-            alt_text='Preview Stamp in web Before Creation',
+            alt_text='Preview Stamp in Web Before Creation',
             color=None,
             text='PREVIEW',
             icon=Icon(material_icon=MaterialIcon(name=MaterialIconName.PREVIEW.value)),
             type='OUTLINED',
             on_click=OnClick(
                 open_dynamic_link_action=Action(
-                    function=f'{BASE_URL}/{STAMPS_PREVIEW_URI}', 
-                    parameters=[ActionParameter(template_id, template_id)]
+                    function=f'{BASE_URL}{STAMPS_PREVIEW_URI}', 
+                    parameters=[ActionParameter('template_id', template_id)]
                 )
             )
         )
@@ -186,10 +188,10 @@ class StampService:
 
         return stamps_grid
 
-    def _get_variable_filled_stamp(
+    def get_variable_filled_stamp(
         self, 
         template: StampTemplate,
-        form_inputs: dict[str, FormInput],
+        inputs: Union[dict[str, FormInput], dict[str, str]],
         timezone: Optional[str] = None
     ) -> str:
         '''Interpolates template variables into stamp
@@ -197,7 +199,8 @@ class StampService:
             Parameters:
                 - self (StampService)
                 - tamplate (StampTemplate)
-                - form_inputs (dict[str, FormInput])
+                - inputs (Union[dict[str, FormInput], dict[str, str]])
+                - timezone (Optional[str])
 
             Returns:
                 updated_template (str)
@@ -207,7 +210,13 @@ class StampService:
         date_format: str = '%m-%d-%Y' if timezone != None and timezone.startswith('US/') else '%d-%m-%Y'
         template_metadata: dict[str, str] = {'DATE': datetime.now().strftime(date_format)}
         for metadata in template.template_metadata:
-            template_metadata[metadata.key.name] = form_inputs[metadata.key.name].stringInputs.value[0]
+            value: str = (
+                inputs[metadata.key.name]
+                    if isinstance(inputs[metadata.key.name], str) 
+                        or inputs[metadata.key.name] == None
+                    else inputs[metadata.key.name].stringInputs.value[0]
+            )
+            template_metadata[metadata.key.name] = value if value != None else f'\u007b{metadata.key.name}\u007d'
         updated_template: str = template_file.read().format(**template_metadata)
 
         return updated_template
@@ -234,7 +243,7 @@ class StampService:
         stamp: Stamp = None 
         try: 
             stamp_url: str = self._cloudinary_service.upload(
-                file=self._get_variable_filled_stamp(template=template, form_inputs=form_inputs).encode(), 
+                file=self.get_variable_filled_stamp(template=template, form_inputs=form_inputs).encode(), 
                 image_id=f'{template.id}_{user.id}_{int(datetime.now().timestamp())}',
                 folder=f'{CLOUDINARY_STAMPS_FOLDER}/{user.organisation_id}',
                 format='png'
@@ -258,6 +267,9 @@ class StampService:
 
         return stamp, errors
     
+    def get_preview_data(self, stamp_previev_id: str) ->Optional[Dict[str, str]]:
+        return cache.get(stamp_previev_id)
+
     def get_create_stamp_card(self, template: StampTemplate) -> Card:
         menu: ChipList = self._navigation_service.get_menu(active_page=MenuItem.TEMPLATES)
         menu_section: Section = Section(header=None, widgets=[Widget(chip_list=menu)])
@@ -298,3 +310,26 @@ class StampService:
         stamp_grid: Grid = self._get_stamps_grid(stamps)
 
         return Section(widgets=[Widget(grid=stamp_grid)], header='Your Stamps')
+
+    def set_preview_data(
+        self, template_id: str, form_inputs: dict[str, FormInput], creator_email: str
+    ) -> Optional[str]:
+        '''Caches stamp creation preview data'''
+        template: Optional[StampTemplate] = self._template_service.get_template(template_id)
+        user: Optional[User] = self._user_service.get_user(creator_email)
+        if template == None or user == None:
+            return None
+        key: str = f'{user.id}_{template_id}'
+        empty_form_input_val: str = FormInput(stringInputs=StringInput([None]))
+        data: Dict[str, str] = {
+            'template_id': template_id,
+            'stamp_name': form_inputs.get('STAMP_NAME', empty_form_input_val).stringInputs.value[0],
+            'colour': form_inputs.get('COLOUR', empty_form_input_val).stringInputs.value[0],
+            'content': {
+                metadata.key.name: form_inputs.get(metadata.key.name, empty_form_input_val).stringInputs.value[0] 
+                for metadata in template.template_metadata
+            },
+            'user_email': creator_email,
+        }
+        cache_set: bool = cache.set(key, data)
+        return key if cache_set else None

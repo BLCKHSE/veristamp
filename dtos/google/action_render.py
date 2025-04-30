@@ -51,9 +51,17 @@ class ActionRenderAction:
     navigations: List[Navigation]
     notification: ActionNotification
 
-    def __init__(self, navigation: Navigation, notification_msg: str):
+    def __init__(
+        self,
+        navigation: Optional[Navigation] = None,
+        notification_msg: Optional[str] = None,
+        link: Optional[str] = None
+    ):
         self.notification = ActionNotification(notification_msg) if notification_msg != None else None
-        self.navigations = [navigation]
+        if navigation != None:
+            self.navigations = [navigation]
+        if link != None:
+            self.link = OpenLink(url=link, on_close='NOTHING')
 
 @dataclass
 class ActionRender():
@@ -62,5 +70,11 @@ class ActionRender():
     host_app_action: Optional[object]
     schema: Optional[str]
 
-    def __init__(self, navigation: Navigation, notification_msg: str = None):
-        self.action = ActionRenderAction(navigation, notification_msg)
+    def __init__(
+        self, 
+        navigation: Optional[Navigation] = None,
+        notification_msg: str = None, 
+        link: Optional[str] = None
+    ):
+        self.action = ActionRenderAction(
+            navigation=navigation, notification_msg=notification_msg, link=link)

@@ -1,21 +1,22 @@
 # CARD ID
-CARD_ID_CREATE_STAMP = 'stamp.create'
-CARD_ID_HOME = 'home.main'
+CARD_ID_CREATE_STAMP: str = 'stamp.create'
+CARD_ID_HOME: str = 'home.main'
 
 # CARD_SUBTITLES
-SUBTITLE_CARD_CREATE_STAMP = 'add stamp > templates > enter details'
+SUBTITLE_CARD_CREATE_STAMP: str = 'add stamp > templates > enter details'
 
 # CLOUDINARY
-CLOUDINARY_TEMPLATES_FOLDER = 'vs_templates'
-CLOUDINARY_STAMPS_FOLDER = 'stamps'
+CLOUDINARY_TEMPLATES_FOLDER: str = 'vs_templates'
+CLOUDINARY_STAMPS_FOLDER: str = 'stamps'
 
 # URI
 ADD_STAMP_URI: str = '/api/addon/templates/stamps'
 DASHBOARD_URI: str = '/api/addon/dashboard'
 HOME_URI: str = '/api/addon/home'
-STAMPS_URI = '/api/addon/stamps'
-STAMPS_PREVIEW_URI = '/api/addon/stamps/preview'
-TEMPLATES_CARD_URI = '/api/addon/templates'
+STAMPS_URI: str = '/api/addon/stamps'
+STAMPS_PREVIEW_URI: str = '/api/addon/stamps/preview'
+STAMPS_WEB_PREVIEW_URI: str  = '/stamp/preview'
+TEMPLATES_CARD_URI: str = '/api/addon/templates'
 ADD_USERS_URI: str = '/api/addon/users'
 USERS_URI: str = '/api/addon/admin/users'
 

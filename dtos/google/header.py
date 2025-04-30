@@ -18,7 +18,7 @@ class Header:
         self, 
         sub_title:str = None,
         image_url: Optional[str] = f"{getenv('BASE_URL')}/static/img/logo.png",
-        image_type: Optional[ImageType] = 'CIRCLE',
+        image_type: Optional[ImageType] = 'SQUARE',
         title: str = 'veristamp.'
     ):
         self.title = title

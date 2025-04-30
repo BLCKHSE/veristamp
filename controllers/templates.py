@@ -70,6 +70,7 @@ class TemplateStampApi(MethodView):
         self._stamp_service = StampService()
         self._template_service = TemplateService()
 
+    @authenticate
     def post(self, **kwargs):
         payload: General = self._general_schema.load(request.get_json())
         template_id: str = payload.common_event_object.parameters.get('grid_item_identifier', None)

@@ -1,0 +1,256 @@
+:root {
+    --main-theme-color: #35446D;
+    --neon-theme-color: #56f058;
+    --main-margin-left-right: 13em;
+}
+
+body {
+    height: 1vh;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.raised-box {
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 15px 15px 40px #bebebe,-15px -15px 40px #ffffff !important;
+}
+
+.no-bg {
+    background: none;
+}
+
+nav {
+    height: 60px;
+    margin: 1em var(--main-margin-left-right);
+    padding: 0.3em 2.4em;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.menu-item {
+    height: 100%;
+    float: left;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.logo-container,
+.logo-container > img {
+    height: 100%;
+}
+
+.logo-name {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    font-size: 1.2em;
+    color: var(--main-theme-color);
+}
+
+.logo-name >span {
+    color: var(--neon-theme-color);
+}
+
+.main {
+    margin: 3em var(--main-margin-left-right);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    row-gap: 1em;
+}
+
+.main >div {
+    column-gap: 2em;
+    width: 48%;
+}
+
+.preview-container {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 1em;
+    align-self: flex-start;
+}
+
+.error-box {
+    margin: auto;
+}
+
+.error-box .error-msg {
+    text-align: center;
+    margin: 1.2em;
+    margin-bottom: 1em;
+    justify-content: center;
+}
+
+.error-box >button {
+    margin: 1em 1.2em;
+}
+
+.preview-img-container {
+    padding: 2em 0.7em;
+}
+
+.preview-img-container >svg {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.preview-btn-container {
+    padding: 1.5em;
+}
+
+.btn-wrapper {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#go-back-btn {
+    align-items: center;
+    background-color: var(--neon-theme-color);
+    border: 2px solid #111;
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: #111;
+    cursor: pointer;
+    display: flex;
+    font-family: Inter,sans-serif;
+    font-size: 16px;
+    height: 48px;
+    justify-content: center;
+    line-height: 24px;
+    max-width: 100%;
+    padding: 0 25px;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+
+#go-back-btn:after {
+    background-color: #111;
+    border-radius: 8px;
+    content: "";
+    display: block;
+    height: 48px;
+    left: 0;
+    width: 100%;
+    position: absolute;
+    top: -2px;
+    transform: translate(8px, 8px);
+    transition: transform .2s ease-out;
+    z-index: -1;
+}
+
+#go-back-btn:hover:after {
+    transform: translate(0, 0);
+}
+
+#go-back-btn:active {
+    background-color: var(--neon-theme-color);
+    outline: 0;
+}
+
+#go-back-btn:hover {
+    outline: 0;
+    cursor: pointer;
+}
+
+.preview-title-container,
+.error-msg {
+    padding: 1em;
+    line-height: 24px;
+    font-size: 1.2em;
+    display: flex;
+    letter-spacing: 0.2em;
+    color: #111;
+}
+
+.material-symbols-outlined {
+    padding-right: 0.5em;
+}
+
+.preview-info-container {
+    padding: 2em 1em;
+    font-family: Inter,sans-serif;
+    
+}
+
+.input-wrapper {
+    display:flex;
+    flex-direction:column;
+}
+
+.input-wrapper >label {
+    margin-bottom:15px;
+    position:relative;
+    border-bottom:1px solid var(--neon-theme-color);
+}
+
+input {
+    border: 3px solid var(--neon-theme-color);
+    border-radius: 5px;
+    height: 50px;
+    line-height: normal;
+    color: var(--neon-theme-color);
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    user-select: auto;
+    font-size: 16px;
+    padding: 10 0px;
+    padding-left: 12px;
+    margin-top:20px;
+    outline:none;
+    border: 0px;
+    background-color: var(--main-theme-color);
+    letter-spacing: 0.2em;
+}
+
+input::placeholder{
+    opacity:0;
+}
+
+.input-wrapper >label >span{
+    position:absolute;
+    top:0;
+    left:0;
+    transform:translateY(30px);
+    font-size:0.825em;
+    transition-duration:300ms;
+}
+
+label:focus-within > span,
+input:not(:placeholder-shown) + span{
+    color:var(--main-theme-color);
+    transform:translateY(0px);
+    font-size: 0.6em;
+    font-weight: 700;
+}
+
+.not-provided {
+    color: gray;
+}
+.provided {
+    color: var(--neon-theme-color);
+}
+
+@media (min-width: 768px) {
+    #go-back-btn  {
+        padding: 0 40px;
+    }
+}

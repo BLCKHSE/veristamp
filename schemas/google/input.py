@@ -9,7 +9,7 @@ from ...dtos.google.input import DateTimePicker, SelectionInput, SuggestionItem,
 
 class SelectionItemSchema(Schema):
 
-    bottom_text: Optional[str] = fields.Str()
+    bottom_text: Optional[str] = fields.Str(data_key='bottomText')
     selected: bool = fields.Bool()
     start_icon_uri: str = fields.Str(data_key='startIconUri')
     text: str = fields.Str()
@@ -54,7 +54,7 @@ class DateTimePickerSchema(Schema):
     on_change_action: Optional[ActionSchema] = fields.Nested(ActionSchema, data_key='onChangeAction')
     timezone_offset_date: Optional[int] = fields.Int(data_key='timezoneOffsetDate')
     type: Literal['DATE_AND_TIME', 'DATE_ONLY', 'TIME_ONLY'] = fields.Str()
-    value_ms_epoch: int = fields.Int()
+    value_ms_epoch: int = fields.Int(data_key='valueMsEpoch')
 
     @post_load
     def make_dat_time_picker(self, data, **kwargs):

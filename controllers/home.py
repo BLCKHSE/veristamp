@@ -7,6 +7,7 @@ from ..database import db
 from ..dtos.google.action_render import ActionRender, Navigation
 from ..dtos.google.card import Card
 from ..dtos.google.general import General
+from ..dtos.google.literals import GoogleSource
 from ..models.subscriptions import SubscriptionOrganisation
 from ..models.user import User
 from ..schemas.google.action_render_schema import ActionRenderSchema
@@ -34,16 +35,17 @@ class HomeAPI(MethodView):
     def post(self, **kwargs):
 
         payload: General = self.request_schema.load(request.get_json())
-        email: str = payload.authorization_event_object.user_email
+        email: str = payload.authorization_event_object.user_email if payload.authorization_event_object != None else None
         referrer: str = payload.common_event_object.parameters.get('referrer', 'link')
+        source: GoogleSource = payload.common_event_object.source
         user: Optional[User] = db.session.scalar(db.select(User).filter_by(email=email))
 
         if user == None:
-            return self._onboard_service.get_welcome_screen()
+            return self._onboard_service.get_welcome_screen(source)
 
         org_subscription: SubscriptionOrganisation = self._subscription_service.get_subscription(user.organisation_id)
         card: Card = (
-            self._home_service.get_home_card(user)
+            self._home_service.get_home_card(user, source)
             if org_subscription != None
             else  SubscriptionPlanService().get_subscription_plan_card()
         )

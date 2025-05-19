@@ -12,7 +12,7 @@ class Button:
 
     alt_text: Optional[str]
     text: Optional[str]
-    on_click: Optional[OnClick]
+    on_click: Optional[OnClick] = None
     color: Optional[Color]  = Color() # if not None, type defaults to 'FILLED'
     icon: Optional[Icon] = None
     type: Literal['OUTLINED', 'FILLED', 'FILLED_TONAL', 'BORDERLESS'] = 'OUTLINED'

@@ -3,6 +3,8 @@ from typing import Literal
 
 ControlType = Literal['SWITCH', 'CHECKBOX']
 
+DisplayStyle = Literal['REPLACE', 'PEEK']
+
 HorizontalAlignment = Literal['START', 'CENTER', 'END']
 
 HostApp = Literal['GMAIL', 'CALENDAR', 'DRIVE', 'DOCS', 'SHEETS', 'SLIDES']
@@ -19,5 +21,7 @@ KnownIcon = Literal[
 ]
 
 Platform = Literal['WEB', 'IOS', 'ANDROID']
+
+GoogleSource = Literal['APPS_SCRIPT', 'ADDON']
 
 VerticalAlignment = Literal['CENTER', 'TOP', 'BOTTOM']

@@ -8,6 +8,7 @@ from werkzeug.datastructures import ImmutableMultiDict, FileStorage
 from ..dtos.google.action_render import ActionRender, Navigation
 from ..dtos.google.card import Card
 from ..dtos.google.general import General
+from ..dtos.google.literals import GoogleSource
 from ..models.stamps import StampTemplate
 from ..services.stamps import StampService
 from ..services.templates import TemplateService
@@ -23,12 +24,15 @@ class TemplateAddonAPI(MethodView):
     
     def __init__(self):
         super().__init__()
+        self._general_schema = GeneralSchema()
         self.response_schema = ActionRenderSchema()
         self._templates_service = TemplateService()
 
     @authenticate
     def post(self, **kwargs):
-        templates_card: Card = self._templates_service.get_tamplates_card()
+        payload: General = self._general_schema.load(request.get_json())
+        source: GoogleSource = payload.common_event_object.source
+        templates_card: Card = self._templates_service.get_tamplates_card(source)
 
         render_action: ActionRender = ActionRender(Navigation(push_card=templates_card))
         return jsonify(self.response_schema.dump(render_action)), 200
@@ -73,9 +77,10 @@ class TemplateStampApi(MethodView):
     @authenticate
     def post(self, **kwargs):
         payload: General = self._general_schema.load(request.get_json())
+        source: GoogleSource = payload.common_event_object.source
         template_id: str = payload.common_event_object.parameters.get('grid_item_identifier', None)
         template: Optional[StampTemplate] = self._template_service.get_template(template_id)
-        add_stamp_card: Card = self._stamp_service.get_create_stamp_card(template)
+        add_stamp_card: Card = self._stamp_service.get_create_stamp_card(template, source)
 
         render_action: ActionRender = ActionRender(Navigation(push_card=add_stamp_card))
         return jsonify(self._action_render_schema.dump(render_action)), 200

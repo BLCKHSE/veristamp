@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, post_load
+from marshmallow import EXCLUDE, Schema, fields, post_load
 
 from datetime import datetime
 from typing import List, Optional
@@ -15,7 +15,7 @@ from ...dtos.google.general import (
     TimeInput,
     TimeZone
 )
-from ...dtos.google.literals import HostApp, Platform
+from ...dtos.google.literals import GoogleSource, HostApp, Platform
 
 
 class DateInputSchema(Schema):
@@ -90,6 +90,7 @@ class CommonSchema(Schema):
         keys=fields.Str(), 
         values=fields.Nested(FormInputSchema)
     )
+    source: Optional[GoogleSource] = fields.Str(required=False, allow_none=True)
 
     @post_load
     def make_common(self, data, **kwargs):
@@ -98,6 +99,10 @@ class CommonSchema(Schema):
 
 class AuthSchema(Schema):
 
+    class Meta:
+        unknown = EXCLUDE
+
+    authorized_scopes: list[str] = fields.List(fields.Str(), allow_none=True, data_key='authorizedScopes')
     system_id_token: str = fields.Str(data_key='systemIdToken')
     user_o_auth_token: str = fields.Str(data_key='userOAuthToken')
     user_email: str = fields.Str()

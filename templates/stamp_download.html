@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% include 'head.html' %}
+  <body>
+    {% include 'nav.html' %}
+    <div class="main">
+      <p>Downloading Stamp...</p>
+      <a id="dl" href={{ stamp_url }} download></a>
+    </div>
+</body>
+<script>
+  const downloadLink = document.getElementById('dl');
+  if (!!downloadLink) {
+    downloadLink.click();
+    setTimeout(() => window.close(), 3000);
+    URL.revokeObjectURL(downloadLink.href);
+  }
+</script>
+</html>

@@ -71,4 +71,4 @@ class SubscriptionEventDTO:
 
     event: PaystackEvent
     data: SubscriptionEventDataDTO
-    meta: SubscriptionEventMetaDTO
+    meta: Optional[SubscriptionEventMetaDTO] = None

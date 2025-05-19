@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, List
+from typing import List
 
 from sqlalchemy import JSON, TIMESTAMP, Enum as EnumSQL, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -115,6 +115,19 @@ class StampApplication(db.Model):
     image_url: Mapped[str] = mapped_column(String)
     stamp_id: Mapped[str] = mapped_column(ForeignKey("stamps.id"), nullable=False)
 
+    def __init__(self, document_id: str, stamp_url: str, stamp_id: str):
+        super().__init__()
+        self.document_id = document_id
+        self.stamp_id = stamp_id
+        self.image_url = stamp_url
+
+    def __repr__(self) -> str:
+        return f'StampApplication (id={self.id}, document={self.document_id})'
+    
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
 
 class StampUser(db.Model):
 
@@ -142,3 +155,17 @@ class StampAuditLog(db.Model):
     notes: Mapped[str] = mapped_column(String(150))
     stamp_application_id: Mapped[str] = mapped_column(ForeignKey("stamp_applications.id"), nullable=True)
     stamp_id: Mapped[str] = mapped_column(ForeignKey("stamps.id"), primary_key=True, nullable=True)
+
+    def __init__(self, user_id: str, document_id: str, event: StampEvent, stamp_application_id: str):
+        super().__init__()
+        self.actor_id = user_id
+        self.document_id = document_id
+        self.event = event
+        self.stamp_application_id = stamp_application_id
+
+    def __repr__(self) -> str:
+        return f'StampAuditLog (id={self.id}, document={self.document_id})'
+    
+    def save(self):
+        db.session.add(self)
+        db.session.commit()

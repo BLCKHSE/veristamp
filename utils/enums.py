@@ -1,6 +1,20 @@
 import enum
 
 
+class AppsScriptFunction(enum.Enum):
+
+    DASHBOARD = 'onDashboard'
+    LANDING = 'onLanding'
+    REGISTRATION = 'onRegister'
+    REGISTRATION_SUBMIT = 'onRegisterSubmit'
+    STAMP_APPLY = 'onStampApply'
+    STAMP_APPLY_SUBMIT = 'onStampApplySubmit'
+    STAMP_CREATE = 'onStampCreate'
+    STAMP_PREVIEW = 'onStampPreview'
+    TEMPLATES = 'onTemplates'
+    TEMPLATE_SELECT = 'onTemplateSelect'
+    USERS = 'onUsers'
+
 class BusinessCategory(enum.Enum):
 
     RETAIL = 'RETAIL'
@@ -30,7 +44,11 @@ class Currency(enum.Enum):
 class MaterialIconName(enum.Enum):
 
     ADD = 'add_2'
+    CORPORATE = 'corporate_fare'
+    DOCS_ADD_ON = 'docs_add_on'
+    DOWNLOAD = 'download'
     STAMP = 'approval'
+    START = 'start'
     PREVIEW = 'preview'
 
 

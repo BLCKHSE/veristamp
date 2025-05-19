@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from .doc import Doc
-from .literals import HostApp, Platform
+from .literals import GoogleSource, HostApp, Platform
 
 
 @dataclass
@@ -65,14 +65,16 @@ class Common:
     time_zone: TimeZone
     form_inputs: Optional[dict[str, FormInput]] = None
     parameters: Optional[dict[str, str]] = field(default_factory=lambda: {})
+    source: Optional[GoogleSource] = 'ADDON'
 
 
 @dataclass
 class Auth:
-
-    system_id_token: str 
+    
     user_o_auth_token: str
-    user_id_token: str
+    system_id_token: Optional[str] = None
+    user_id_token: Optional[str] = None
+    authorized_scopes: Optional[List[str]] = None
     user_email: Optional[str] = None
     email_verified: bool = False
     client_id: Optional[str] = None

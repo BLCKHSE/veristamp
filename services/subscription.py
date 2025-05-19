@@ -44,7 +44,7 @@ class SubscriptionPaymentService:
             return None, {'user': 'User not found'}
         subscription = self._subscription_service.get_subscription(organisation_id=user.organisation_id)
         if subscription == None:
-            subscription_data: List[SubscriptionEventDataDTO] = self._paystack_service.get_subscription(user.paystack_customer_id)
+            subscription_data: List[SubscriptionEventDataDTO] = self._paystack_service.get_subscriptions(user.paystack_customer_id)
             if subscription_data.count() == 0:
                 return None, {'subscription': 'Subscription not found'}
             subscription =  self._subscription_service.create(subsciption_event_data=subscription_data[0], organisation_id=user.organisation_id)
@@ -119,7 +119,7 @@ class SubscriptionPlanService:
             sub_plan_btn: Button = Button(
                 alt_text=f'{plan.name} image',
                 text=btn_txt,
-                on_click= OnClick(open_link= OpenLink(plan.plan_url)),
+                on_click= OnClick(open_link= OpenLink(url=plan.plan_url, open_as='FULL_SIZE')),
             )
             sub_plan_btns: ButtonList = ButtonList([sub_plan_btn])
             sub_plan_widgets.extend([

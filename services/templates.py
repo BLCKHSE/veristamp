@@ -15,13 +15,14 @@ from ..dtos.google.chips import ChipList
 from ..dtos.google.grid import Grid, GridItem
 from ..dtos.google.header import Header
 from ..dtos.google.image import ImageComponent
+from ..dtos.google.literals import GoogleSource
 from ..dtos.google.on_click import OnClick
 from ..dtos.google.section import Section
 from ..dtos.google.widget import Widget
 from ..models.stamps import StampTemplate, StampTemplateMetadata
 from ..services.navigation import NavigationService
 from ..settings import BASE_URL
-from ..utils.enums import MenuItem, Status
+from ..utils.enums import AppsScriptFunction, MenuItem, Status
 
 
 class TemplateService:
@@ -30,16 +31,20 @@ class TemplateService:
         self._navigation_service = NavigationService()
         self._cloudinary_service = Cloudinary()
 
-    def _get_templates_grid(self, templates: List[StampTemplate]) -> Grid:
+    def _get_templates_grid(self, templates: List[StampTemplate], source: GoogleSource = 'ADDON') -> Grid:
         items: List[GridItem] = []
         for template in templates:
             image_component: ImageComponent = ImageComponent(
-                template.image_url, alt_text=template.description, border_style=None)
+                image_uri=template.image_url, alt_text=template.description, border_style=None)
             item: GridItem = GridItem(
                 id=template.id, title=template.name, image=image_component, text_alignment='END')
             items.append(item)
 
-        item_onclick: OnClick = OnClick(action=Action(function=f'{BASE_URL}{ADD_STAMP_URI}'))
+        item_onclick: OnClick = OnClick(action=Action(
+            function=(
+                f'{BASE_URL}{ADD_STAMP_URI}') if source =='ADDON' else AppsScriptFunction.TEMPLATE_SELECT.value
+            )
+        )
         grid_border_style: BorderStyle = BorderStyle(corner_radius=5, type='STROKE')
         templates_grid: Grid = Grid(
             column_count=2,
@@ -108,14 +113,14 @@ class TemplateService:
     def get_templates(self) -> List[StampTemplate]:
         return db.session.scalars(db.select(StampTemplate).filter_by(status=Status.ACT)).all()
 
-    def get_tamplates_card(self) -> Card:
-        menu: ChipList = self._navigation_service.get_menu(active_page=MenuItem.TEMPLATES)
+    def get_tamplates_card(self, source: GoogleSource = 'ADDON') -> Card:
+        menu: ChipList = self._navigation_service.get_menu(active_page=MenuItem.TEMPLATES, source=source)
         menu_section: Section = Section(header=None, widgets=[Widget(chip_list=menu)])
         templates: List[StampTemplate] = self.get_templates()
 
         templates_section: Section = Section(
             header='Select Template',
-            widgets=[Widget(grid=self._get_templates_grid(templates))]
+            widgets=[Widget(grid=self._get_templates_grid(templates, source))]
         )
         card: Card = Card(
             name=CARD_ID_TEMPLATES,

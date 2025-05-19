@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -10,5 +11,5 @@ class Doc:
 
     id: str
     title: str
-    addon_has_file_scope_permission: bool
     url: str
+    addon_has_file_scope_permission: Optional[bool] = True

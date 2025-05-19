@@ -12,7 +12,7 @@ class ActionParameter:
 @dataclass
 class Action:
     
-    function: Optional[str]
+    function: Optional[str] = None
     all_widgets_are_required: Optional[bool] = False
     interaction: Literal['INTERACTION_UNSPECIFIED', 'OPEN_DIALOG'] = 'INTERACTION_UNSPECIFIED'
     load_indicator: Literal['SPINNER', 'NONE'] = 'SPINNER'

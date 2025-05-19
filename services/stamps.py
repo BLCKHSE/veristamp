@@ -4,8 +4,11 @@ from typing import Dict, List, Optional, Tuple, Union
 from ..cache import cache
 from ..data.constants import (
     CARD_ID_CREATE_STAMP,
+    CARD_ID_STAMP_APPLY,
     CLOUDINARY_STAMPS_FOLDER, 
-    COLOR_CODES, 
+    COLOR_CODES,
+    STAMPS_APPLY_CARD_URI,
+    STAMPS_APPLY_URI,
     STAMPS_PREVIEW_URI,
     STAMPS_URI, 
     SUBTITLE_CARD_CREATE_STAMP,
@@ -17,24 +20,29 @@ from ..dtos.google.button import Button
 from ..dtos.google.card import Card
 from ..dtos.google.chips import ChipList
 from ..dtos.google.decorated_text import DecoratedText
+from ..dtos.google.doc import Doc
 from ..dtos.google.footer import Footer
 from ..dtos.google.general import FormInput, StringInput
 from ..dtos.google.grid import Grid, GridItem
+from ..dtos.google.header import Header
 from ..dtos.google.icon import Icon, MaterialIcon
 from ..dtos.google.image import Image, ImageComponent
 from ..dtos.google.input import SelectionInput, SelectionItem, TextInput, Validation
-from ..dtos.google.header import Header
+from ..dtos.google.link import OpenLink
+from ..dtos.google.literals import GoogleSource
 from ..dtos.google.on_click import OnClick
 from ..dtos.google.section import Section
 from ..dtos.google.widget import Widget
-from ..models.stamps import Stamp, StampTemplate, StampTemplateMetadata, StampUser
+from ..models.documents import Document
+from ..models.stamps import Stamp, StampApplication, StampAuditLog, StampTemplate, StampTemplateMetadata, StampUser
 from ..models.user import User
 from ..services.cloudinary import Cloudinary
+from ..services.documents import DocumentService
 from ..services.templates import TemplateService
 from ..services.user import UserService
 from ..services.navigation import NavigationService
 from ..settings import BASE_URL, THEME_PRIMARY_COLOUR
-from ..utils.enums import MaterialIconName, MenuItem, Status
+from ..utils.enums import AppsScriptFunction, MaterialIconName, MenuItem, StampEvent
 
 
 class StampService:
@@ -43,10 +51,40 @@ class StampService:
 
     def __init__(self):
         self._cloudinary_service = Cloudinary()
+        self._document_service = DocumentService()
         self._navigation_service = NavigationService()
         self._required_create_stamp_inputs = ['stamp_name']
         self._template_service = TemplateService()
         self._user_service = UserService()
+
+    def _get_apply_stamp_footer(self, stamp_url: str, stamp_id: str, source: GoogleSource = 'ADDON') -> Footer:
+
+        download_btn: Button = Button(
+            alt_text='Donwload stamp',
+            text='DOWLOAD',
+            icon=Icon(material_icon=MaterialIcon(MaterialIconName.DOWNLOAD.value)),
+            on_click=OnClick(open_link=OpenLink(
+                url=f'{BASE_URL}{STAMPS_APPLY_URI}?s_url={stamp_url}&s_id={stamp_id}',
+                open_as='FULL_SIZE'
+            ))
+        )
+        apply_btn: Button = Button(
+            alt_text='Apply stamp into Google document',
+            color=None,
+            text='APPLY',
+            icon=Icon(material_icon=MaterialIcon(name=MaterialIconName.DOCS_ADD_ON.value)),
+            type='OUTLINED',
+            on_click=OnClick(
+                action=Action(
+                    function=f'{BASE_URL}{STAMPS_APPLY_URI}' if source =='ADDON' else AppsScriptFunction.STAMP_APPLY_SUBMIT.value, 
+                    parameters=[ActionParameter('stamp_url', stamp_url), ActionParameter('stamp_id', stamp_id)]
+                )
+            )
+        )
+        return Footer(
+            primary_button=apply_btn,
+            secondary_button=download_btn,
+        )
 
     def _get_create_stamp_form(self, template: StampTemplate) -> Section:
         '''Generates stamp form based on provided stamp template
@@ -99,10 +137,11 @@ class StampService:
             multi_select_max_selected_items=1,
             multi_select_min_query_length=1,
             items=[SelectionItem(
-                text=color.get('code'), 
+                text=color.get('name'), 
                 value=color.get('code'), 
                 start_icon_uri=color.get('icon_url'),
-                selected=color.get('code')==THEME_PRIMARY_COLOUR
+                selected=color.get('code')==THEME_PRIMARY_COLOUR,
+                bottom_text=color.get('code')
             ) for color in COLOR_CODES],
         )
         input_widgets.append(Widget(selection_input=color_input))
@@ -133,20 +172,24 @@ class StampService:
         )
         return template_view_section
     
-    def _get_stamp_form_submit_footer(self, template_id: str) -> Footer:
+    def _get_stamp_form_submit_footer(self, template_id: str, source: GoogleSource = 'ADDON') -> Footer:
         '''Gets fixed card footer with "PREVIEW" & "SUBMIT" form buttons
         
             Returns:
-                inputs (Footer)
+                inputs (Footer) - Card fixed footer
         '''
         submit_btn: Button = Button(
             alt_text='Submit Create Stamp Form',
             text='SUBMIT',
             on_click=OnClick(action=Action(
-                function=f'{BASE_URL}/{STAMPS_URI}',
+                function=f'{BASE_URL}/{STAMPS_URI}' if source == 'ADDON' else AppsScriptFunction.STAMP_CREATE.value,
                 required_widgets=self._required_create_stamp_inputs,
                 parameters=[ActionParameter('template_id', template_id)]
             ))
+        )
+        on_click_action: Action = Action(
+            function=f'{BASE_URL}{STAMPS_PREVIEW_URI}' if source == 'ADDON' else AppsScriptFunction.STAMP_PREVIEW.value, 
+            parameters=[ActionParameter('template_id', template_id)]
         )
         preview_btn: Button = Button(
             alt_text='Preview Stamp in Web Before Creation',
@@ -154,12 +197,7 @@ class StampService:
             text='PREVIEW',
             icon=Icon(material_icon=MaterialIcon(name=MaterialIconName.PREVIEW.value)),
             type='OUTLINED',
-            on_click=OnClick(
-                open_dynamic_link_action=Action(
-                    function=f'{BASE_URL}{STAMPS_PREVIEW_URI}', 
-                    parameters=[ActionParameter('template_id', template_id)]
-                )
-            )
+            on_click=OnClick(action=on_click_action)
         )
         form_footer: Footer = Footer(
             primary_button=submit_btn,
@@ -167,7 +205,7 @@ class StampService:
         )
         return form_footer
 
-    def _get_stamps_grid(self, stamps: List[Stamp]) -> Grid:
+    def _get_stamps_grid(self, stamps: List[Stamp], source: GoogleSource = 'ADDON') -> Grid:
         '''Get grid of stamps'''
         items: List[GridItem] = []
         for stamp in stamps:
@@ -177,7 +215,8 @@ class StampService:
                 id=stamp.id, title=stamp.name, image=image_component, text_alignment='END')
             items.append(item)
 
-        item_onclick: OnClick = OnClick(action=Action(function=f'{BASE_URL}{STAMPS_URI}'))
+        functionVal: str = f'{BASE_URL}{STAMPS_APPLY_CARD_URI}' if source == 'ADDON' else AppsScriptFunction.STAMP_APPLY.value
+        item_onclick: OnClick = OnClick(action=Action(function=functionVal))
         grid_border_style: BorderStyle = BorderStyle(corner_radius=5, type='STROKE')
         stamps_grid: Grid = Grid(
             column_count=2,
@@ -187,6 +226,20 @@ class StampService:
         )
 
         return stamps_grid
+    
+    def apply_stamp(self, google_doc: Doc, user: User, stamp_url: str, stamp_id: str):
+        document: Optional[Document] = self._document_service.get_stamp(google_doc.id)
+        if document == None:
+            document = self._document_service.create(google_doc)
+        # create a stamp_application record
+        stamp_application: StampApplication = StampApplication(document.id, stamp_url, stamp_id)
+        stamp_application.save()
+        # create stamp_audit log
+        audit_log: StampAuditLog = StampAuditLog(
+            user.id, document.id, StampEvent.APPLY, stamp_application.id)
+        audit_log.notes = f'Apply stamp to doc: {google_doc.title}'
+        audit_log.save()
+
 
     def get_variable_filled_stamp(
         self, 
@@ -241,9 +294,9 @@ class StampService:
         user: Optional[User] = self._user_service.get_user(creator_email)
         errors: dict[str, object] = {}
         stamp: Stamp = None 
-        try: 
+        try:
             stamp_url: str = self._cloudinary_service.upload(
-                file=self.get_variable_filled_stamp(template=template, form_inputs=form_inputs).encode(), 
+                file=self.get_variable_filled_stamp(template=template, inputs=form_inputs, timezone=user.timezone).encode(), 
                 image_id=f'{template.id}_{user.id}_{int(datetime.now().timestamp())}',
                 folder=f'{CLOUDINARY_STAMPS_FOLDER}/{user.organisation_id}',
                 format='png'
@@ -267,11 +320,59 @@ class StampService:
 
         return stamp, errors
     
-    def get_preview_data(self, stamp_previev_id: str) ->Optional[Dict[str, str]]:
+    def get_apply_stamp_card(
+        self,
+        template: StampTemplate,
+        stamp: Stamp,
+        user: User,
+        source: GoogleSource = 'ADDON'
+    ) -> Optional[Card]:
+        '''Gets card to apply or download stamp image
+        
+            Parameters:
+                - self (StampService)
+                - template (StampTemplate)
+                - stamp (Stamp)
+                - user (User)
+
+            Returns:
+                - apply stamp card (Card|None)
+        '''
+
+        menu_section: Section = Section(
+            header=None,
+            widgets=[Widget(chip_list=self._navigation_service.get_menu(MenuItem.HOME, source))]
+        )
+        apply_stamp_card: Card = Card(
+            name=CARD_ID_STAMP_APPLY,
+            header=Header(f'Hey {user.first_name.upper()}'),
+            sections=[menu_section]
+        )
+        try:
+            # stamp_url: str = self._cloudinary_service.upload(
+            #     file=self.get_variable_filled_stamp(template=template, inputs=stamp.template_content, timezone=user.timezone).encode(), 
+            #     image_id=f'{template.id}_{user.id}_{int(datetime.now().timestamp())}',
+            #     folder=f'{CLOUDINARY_STAMPS_FOLDER}/{user.organisation_id}',
+            #     format='png'
+            # )
+            stamp_url: str = 'https://res.cloudinary.com/dr5li7c0i/image/upload/v1746460608/stamps/7GEjTkjV/j0uAh8ZM_FTKnLw7g_1746460607.png'
+            
+            stamp_section: Section = Section(widgets=[
+                Widget(image=Image(alt_text=f'{stamp.name} image', image_url=stamp_url))
+            ])
+            apply_stamp_card.sections.append(stamp_section)
+            apply_stamp_card.header = Header(f'stamps >apply stamp')
+            apply_stamp_card.fixed_footer = self._get_apply_stamp_footer(stamp_url=stamp_url, stamp_id=stamp.id, source=source)
+        except Exception as err:
+            apply_stamp_card = None
+
+        return apply_stamp_card
+
+    def get_preview_data(self, stamp_previev_id: str) -> Optional[Dict[str, str]]:
         return cache.get(stamp_previev_id)
 
-    def get_create_stamp_card(self, template: StampTemplate) -> Card:
-        menu: ChipList = self._navigation_service.get_menu(active_page=MenuItem.TEMPLATES)
+    def get_create_stamp_card(self, template: StampTemplate, source: GoogleSource = 'ADDON') -> Card:
+        menu: ChipList = self._navigation_service.get_menu(active_page=MenuItem.TEMPLATES, source=source)
         menu_section: Section = Section(header=None, widgets=[Widget(chip_list=menu)])
         template_view_section: Section = self._get_create_stamp_template_view(template=template)
         form_section: Section = self._get_create_stamp_form(template)
@@ -281,7 +382,7 @@ class StampService:
             name=CARD_ID_CREATE_STAMP,
             header=Header(SUBTITLE_CARD_CREATE_STAMP),
             sections=[menu_section, template_view_section, form_section, secondary_form_section],
-            fixed_footer=self._get_stamp_form_submit_footer(template.id)
+            fixed_footer=self._get_stamp_form_submit_footer(template.id, source)
         )
         return card
     
@@ -296,7 +397,7 @@ class StampService:
     def get_stamp(self, stamp_id: str) -> Optional[Stamp]:
         return db.session.scalar(db.select(Stamp).filter_by(id=stamp_id))
 
-    def get_stamps_section(self, user_id: str) -> Section:
+    def get_stamps_section(self, user_id: str, source: GoogleSource = 'ADDON') -> Section:
         '''Gets the GWAO section wrapper with all valid org stamps
         
             Parameters:
@@ -307,7 +408,7 @@ class StampService:
                 - stamps_section (Section)
         '''
         stamps: List[Stamp] = self.get_stamps(user_id)
-        stamp_grid: Grid = self._get_stamps_grid(stamps)
+        stamp_grid: Grid = self._get_stamps_grid(stamps, source)
 
         return Section(widgets=[Widget(grid=stamp_grid)], header='Your Stamps')
 

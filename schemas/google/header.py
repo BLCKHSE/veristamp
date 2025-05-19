@@ -1,4 +1,3 @@
-
 from typing import Optional
 from marshmallow import Schema, fields, post_load
 
@@ -11,7 +10,7 @@ class HeaderSchema(Schema):
     title: str = fields.Str(required=True)
     subtitle: Optional[str] = fields.Str()
     image_url: Optional[str] = fields.Str(data_key='imageUrl')
-    image_type: ImageType = fields.Str()
+    image_type: ImageType = fields.Str(data_key='imageType')
 
     @post_load
     def make_header(self, data, **kwargs):

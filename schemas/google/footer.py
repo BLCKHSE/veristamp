@@ -4,5 +4,5 @@ from .button import ButtonSchema
 
 
 class FooterSchema(Schema):
-    primary_button: ButtonSchema = fields.Nested(ButtonSchema)
-    secondary_button: ButtonSchema = fields.Nested(ButtonSchema)
+    primary_button: ButtonSchema = fields.Nested(ButtonSchema, data_key='primaryButton')
+    secondary_button: ButtonSchema = fields.Nested(ButtonSchema, data_key='secondaryButton')

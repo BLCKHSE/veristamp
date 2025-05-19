@@ -19,7 +19,7 @@ class NavigationSchema(Schema):
 
     pop_to_root: bool = fields.Bool(data_key='popToRoot')
     pop: bool = fields.Bool()
-    pop_to_card: bool = fields.Bool(data_key='popToStart')
+    pop_to_card: bool = fields.Bool(data_key='popToCard')
     push_card: CardSchema = fields.Nested(CardSchema, data_key='pushCard')
     update_card: CardSchema = fields.Nested(CardSchema, data_key='updateCard')
     end_navigation: ActionNavigationSchema = fields.Nested(ActionNavigationSchema, data_key='endNavigation')

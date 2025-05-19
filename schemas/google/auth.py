@@ -13,7 +13,7 @@ class Auth(Schema):
     client_id: str = fields.Str()
     expiry_timestamp: datetime = fields.DateTime()
     issuer: str = fields.Str()
-    system_id_token: str = fields.Str(required=True, data_key='systemIdToken')
+    system_id_token: str = fields.Str(data_key='systemIdToken')
     user_o_auth_token: str = fields.Str(required=True, data_key='userOAuthToken')
     user_email: str = fields.Str(allow_none=True)
     user_id_token: str = fields.Str(required=True, data_key='userIdToken')
@@ -21,6 +21,7 @@ class Auth(Schema):
 
     @pre_load
     def process_user(self, data, **kwargs):
+
         decodedToken: dict[str, object] = jwt.decode(data.get('userIdToken'), options={'verify_signature': False})
         self.client_id = decodedToken.get('aud')
         self.issuer = decodedToken.get('iss')

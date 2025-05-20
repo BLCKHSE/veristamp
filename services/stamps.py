@@ -349,13 +349,12 @@ class StampService:
             sections=[menu_section]
         )
         try:
-            # stamp_url: str = self._cloudinary_service.upload(
-            #     file=self.get_variable_filled_stamp(template=template, inputs=stamp.template_content, timezone=user.timezone).encode(), 
-            #     image_id=f'{template.id}_{user.id}_{int(datetime.now().timestamp())}',
-            #     folder=f'{CLOUDINARY_STAMPS_FOLDER}/{user.organisation_id}',
-            #     format='png'
-            # )
-            stamp_url: str = 'https://res.cloudinary.com/dr5li7c0i/image/upload/v1746460608/stamps/7GEjTkjV/j0uAh8ZM_FTKnLw7g_1746460607.png'
+            stamp_url: str = self._cloudinary_service.upload(
+                file=self.get_variable_filled_stamp(template=template, inputs=stamp.template_content, timezone=user.timezone).encode(), 
+                image_id=f'{template.id}_{user.id}_{int(datetime.now().timestamp())}',
+                folder=f'{CLOUDINARY_STAMPS_FOLDER}/{user.organisation_id}',
+                format='png'
+            )
             
             stamp_section: Section = Section(widgets=[
                 Widget(image=Image(alt_text=f'{stamp.name} image', image_url=stamp_url))

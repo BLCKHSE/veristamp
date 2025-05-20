@@ -1,3 +1,6 @@
+from typing import List
+
+
 # CARD ID
 CARD_ID_CREATE_STAMP: str = 'stamp.create'
 CARD_ID_HOME: str = 'home.main'
@@ -30,7 +33,7 @@ USER_REGISTRATION_FORM_URI = '/api/addon/user/onboard'
 CARD_ID_TEMPLATES: str = 'templates.main'
 SUBTITLE_CARD_TEMPLATES: str = 'add stamp > templates'
 
-COLOR_CODES: list[dict[str, str]]= [
+COLOR_CODES: List[dict[str, str]]= [
     {
         'name': 'blue',
         'code': '#35446D',

@@ -62,7 +62,7 @@ class StampService:
         download_btn: Button = Button(
             alt_text='Donwload stamp',
             text='DOWLOAD',
-            icon=Icon(material_icon=MaterialIcon(MaterialIconName.DOWNLOAD.value)),
+            icon=Icon(material_icon=MaterialIcon(name=MaterialIconName.DOWNLOAD.value)),
             on_click=OnClick(open_link=OpenLink(
                 url=f'{BASE_URL}{STAMPS_APPLY_URI}?s_url={stamp_url}&s_id={stamp_id}',
                 open_as='FULL_SIZE'
@@ -137,8 +137,8 @@ class StampService:
             multi_select_max_selected_items=1,
             multi_select_min_query_length=1,
             items=[SelectionItem(
-                text=color.get('name'), 
-                value=color.get('code'), 
+                text=str(color.get('name')), 
+                value=str(color.get('code')), 
                 start_icon_uri=color.get('icon_url'),
                 selected=color.get('code')==THEME_PRIMARY_COLOUR,
                 bottom_text=color.get('code')
@@ -209,8 +209,7 @@ class StampService:
         '''Get grid of stamps'''
         items: List[GridItem] = []
         for stamp in stamps:
-            image_component: ImageComponent = ImageComponent(
-                stamp.image_url, alt_text=stamp.name, border_style=None)
+            image_component: ImageComponent = ImageComponent(stamp.image_url, alt_text=stamp.name)
             item: GridItem = GridItem(
                 id=stamp.id, title=stamp.name, image=image_component, text_alignment='END')
             items.append(item)
@@ -264,10 +263,10 @@ class StampService:
         template_metadata: dict[str, str] = {'DATE': datetime.now().strftime(date_format)}
         for metadata in template.template_metadata:
             value: str = (
-                inputs[metadata.key.name]
+                str(inputs[metadata.key.name])
                     if isinstance(inputs[metadata.key.name], str) 
                         or inputs[metadata.key.name] == None
-                    else inputs[metadata.key.name].stringInputs.value[0]
+                    else inputs[metadata.key.name].stringInputs.value[0] # type: ignore
             )
             template_metadata[metadata.key.name] = value if value != None else f'\u007b{metadata.key.name}\u007d'
         updated_template: str = template_file.read().format(**template_metadata)
@@ -276,7 +275,7 @@ class StampService:
 
     def create(
         self, template_id: str, form_inputs: dict[str, FormInput], creator_email: Optional[str]
-    ) -> Tuple[Stamp, Optional[dict[str, str]]]:
+    ) -> Tuple[Optional[Stamp], Optional[dict[str, str]]]:
         '''Creates a client specific stamp record to be used when applying stamps to documents
         
             Parameters:
@@ -290,10 +289,12 @@ class StampService:
         '''
         template: Optional[StampTemplate] = self._template_service.get_template(template_id)
         if template == None:
-            return None, {'template', "Template not found"}
-        user: Optional[User] = self._user_service.get_user(creator_email)
-        errors: dict[str, object] = {}
-        stamp: Stamp = None 
+            return (None, {'template': "Template not found"})
+        user: Optional[User] = self._user_service.get_user(str(creator_email))
+        errors: dict[str, str] = {}
+        stamp: Optional[Stamp] = None 
+        if user ==None:
+            return stamp, {'user': 'user not found'}
         try:
             stamp_url: str = self._cloudinary_service.upload(
                 file=self.get_variable_filled_stamp(template=template, inputs=form_inputs, timezone=user.timezone).encode(), 
@@ -303,20 +304,23 @@ class StampService:
             )
 
             stamp = Stamp()
-            stamp.color_code = form_inputs.get('COLOUR').stringInputs.value[0]
+            stamp.color_code = form_inputs.get(
+                'COLOUR',
+                FormInput(stringInputs=StringInput([THEME_PRIMARY_COLOUR]))
+            ).stringInputs.value[0] # type: ignore
             stamp.created_by = user.id
             stamp.image_url = stamp_url
-            stamp.name = form_inputs.get('STAMP_NAME').stringInputs.value[0]
+            stamp.name = form_inputs.get('STAMP_NAME').stringInputs.value[0] # type: ignore
             stamp.template_id = template_id
             stamp.template_content = {
-                key: val.stringInputs.value[0] for key, val in form_inputs.items() if key not in self._GENERAL_INPUTS
+                key: val.stringInputs.value[0] for key, val in form_inputs.items() if key not in self._GENERAL_INPUTS # type: ignore
             }
             stamp.updated_by = user.id
             stamp.stamp_users.append(StampUser(user.id))
             db.session.add(stamp)
             db.session.commit()
         except Exception as err:
-            errors = {'error': err}
+            errors = {'error': str(err)}
 
         return stamp, errors
     
@@ -343,7 +347,7 @@ class StampService:
             header=None,
             widgets=[Widget(chip_list=self._navigation_service.get_menu(MenuItem.HOME, source))]
         )
-        apply_stamp_card: Card = Card(
+        apply_stamp_card: Optional[Card] = Card(
             name=CARD_ID_STAMP_APPLY,
             header=Header(f'Hey {user.first_name.upper()}'),
             sections=[menu_section]
@@ -391,7 +395,7 @@ class StampService:
             statement=db.select(Stamp)
                 .join(StampUser)
                 .where(StampUser.user_id==user_id)
-            ).all()
+            ).all() # type: ignore
     
     def get_stamp(self, stamp_id: str) -> Optional[Stamp]:
         return db.session.scalar(db.select(Stamp).filter_by(id=stamp_id))
@@ -420,16 +424,16 @@ class StampService:
         if template == None or user == None:
             return None
         key: str = f'{user.id}_{template_id}'
-        empty_form_input_val: str = FormInput(stringInputs=StringInput([None]))
-        data: Dict[str, str] = {
+        empty_form_input_val: FormInput = FormInput(stringInputs=StringInput(['None']))
+        data: Dict[str, Union[str, dict[str, str]]] = {
             'template_id': template_id,
-            'stamp_name': form_inputs.get('STAMP_NAME', empty_form_input_val).stringInputs.value[0],
-            'colour': form_inputs.get('COLOUR', empty_form_input_val).stringInputs.value[0],
+            'stamp_name': str(form_inputs.get('STAMP_NAME', empty_form_input_val).stringInputs.value[0]), # type: ignore
+            'colour': str(form_inputs.get('COLOUR', empty_form_input_val).stringInputs.value[0]), # type: ignore
             'content': {
-                metadata.key.name: form_inputs.get(metadata.key.name, empty_form_input_val).stringInputs.value[0] 
+                metadata.key.name: form_inputs.get(metadata.key.name, empty_form_input_val).stringInputs.value[0]  # type: ignore
                 for metadata in template.template_metadata
             },
             'user_email': creator_email,
         }
-        cache_set: bool = cache.set(key, data)
+        cache_set: Optional[bool] = cache.set(key, data)
         return key if cache_set else None
